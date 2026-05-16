@@ -5,17 +5,22 @@ description: Use when optimizing X/Twitter posts for reach, debugging underperfo
 
 # X Algorithm Optimizer
 
-Optimize content for X's 2026 neural recommendation system. Based on technical analysis of the `xai-org/x-algorithm` codebase, this skill provides both **tactical templates** for immediate use and **deep architectural understanding** for strategic advantage.
+Optimize content for X's 2026 neural recommendation system. Based on technical analysis of the `xai-org/x-algorithm` codebase (May 15, 2026 release), this skill provides both **tactical templates** for immediate use and **deep architectural understanding** for strategic advantage.
+
+> **Changelog — 2026-05-15:** Re-audited against the `xai-org/x-algorithm` repo refresh (`run_pipeline.py`, Grox content-understanding service, ads blending, `RankingScorer`). See "What Changed (2026-05-15)" at the bottom. Key corrections: the exact action list is now confirmed (no `bookmark`, no `expand_details`); negative signals use a **bounded normalization**, NOT a raw `-1000` multiplier; scoring weights are runtime feature-switch params and are NOT published in the repo (do not quote specific numbers as fact).
 
 ## The Paradigm Shift: Neural > Heuristics
 
-X has abandoned the legacy heuristic approach (counting followers, matching hashtags, PageRank reputation). The new system uses **end-to-end neural architecture**:
+X has moved to an **end-to-end neural architecture** and, per the repo, has "eliminated every single hand-engineered feature and most heuristics" (`README.md`). The pipeline:
 
-- **Thunder**: In-network retrieval (posts from accounts you follow)
-- **Phoenix**: Out-of-network retrieval + neural ranking (the "For You" discovery engine)
-- **Grok-1 Transformer**: The "Heavy Ranker" that reads and scores every candidate post
+- **Home Mixer**: Rust orchestration layer — query hydration → candidate sourcing → hydration → filters → scorers → selector → post-selection filters → ads blending.
+- **Thunder**: In-network candidate source — an in-memory store of recent posts from accounts you follow (sub-millisecond lookups, Kafka-fed).
+- **Phoenix**: Out-of-network retrieval (Two-Tower model over a global corpus) + the neural ranker (a Grok-1-derived transformer).
+- **Grox**: A separate content-understanding service (spam, safety/PTOS, post category, "banger" quality screen, multimodal embeddings).
 
-**The implication**: You can't "hack" hashtags or posting times anymore. The algorithm **reads your content semantically** and predicts specific engagement probabilities. Alignment beats manipulation.
+**The implication**: posting-time tricks and hashtag stuffing don't work. The Phoenix ranker predicts engagement-action probabilities from your engagement-history embeddings; Grox classifiers screen content quality and safety. Alignment beats manipulation.
+
+> Accuracy note: the Phoenix **ranker** is a Grok-1-derived transformer that operates on hash-based ID embeddings and engagement sequences — it does not "read" your post as natural-language prose. Genuine content reading (spam/safety/category/multimodal) happens in the **Grox** service.
 
 ---
 
@@ -34,59 +39,73 @@ X has abandoned the legacy heuristic approach (counting followers, matching hash
 ## Cheat Sheet
 
 **DO:**
-- Maximize P(reply): questions, fill-blanks, "hot take + nuance"
-- Include media (image/video) for +P(video_view), +P(photo_expand)
-- Space posts 4-6+ hours apart (author diversity penalty)
-- Post when audience active (time decay is exponential)
-- Build concentrated niche (strengthens your User Tower embedding)
+- Maximize replies + reposts + quotes + shares: questions, fill-blanks, "hot take + nuance" (network-extending actions are the top tier)
+- Include media: adds the `photo_expand` and `vqv` (video quality view) terms; videos must clear a minimum duration to score `vqv`
+- Diversify (don't expect multiple of your posts in one feed response — `AuthorDiversityScorer` attenuates repeat authors per-response)
+- Post when your audience is active (the `AgeFilter` hard-drops posts past `max_age`; early velocity matters)
+- Build a concentrated niche (strengthens your User Tower embedding for out-of-network retrieval)
+- Lean on in-network reach — out-of-network candidates are multiplied down by `OonWeightFactor`
 
 **DON'T:**
-- Use irrelevant hashtags (Grok detects semantic mismatch)
-- Post rage-bait (high blocks destroy score even with high engagement)
-- Link-only posts (forfeit all media probability terms)
-- Posting sprees (3rd post = ~10% reach of 1st)
-- Engagement pods (Grok detects coordination patterns)
+- Use spammy patterns (the Grox `spam` classifier and `banger_screen` exist; low-follower reply spam is specifically classified)
+- Post rage-bait (negative actions renormalize the score into the suppressed bucket)
+- Link-only posts (forfeit media probability terms; low intrinsic engagement)
+- Post unsafe/PTOS-violating content (Grox safety classifiers + post-selection `VFFilter`)
 
-**TARGET:** <0.5% block rate. Above 1% = systematic demotion.
+**TARGET:** minimize `not_interested` / `block` / `mute` / `report`. Specific "block rate %" thresholds are NOT in the repo — treat any percentage as a rule of thumb, not code.
 
 ---
 
 ## The Weighted Scorer Formula
 
-Every post receives a score computed as:
+Every post receives a score. Source: `home-mixer/scorers/weighted_scorer.rs` and the newer `home-mixer/scorers/ranking_scorer.rs`.
 
 ```
-Score = Σ (w_i × P(action_i))
+combined_score = Σ (weight_action × P(action))   // positive AND negative actions summed
+final_score    = offset_score(combined_score)    // bounded normalization, NOT a raw cliff
 ```
 
-Where the Phoenix transformer predicts probabilities for each action type, and configured weights determine their impact.
+The Phoenix Grok-based transformer predicts a probability for each action. Weights are pulled at **request time from a feature-switch `Params` system** (`params.get(FavoriteWeight)`, `params.get(ReplyWeight)`, etc. — see `ranking_scorer.rs::ScoringWeights::from_params`). **The actual weight numbers are NOT in the open-source repo.** Anyone quoting "P(reply) = 15" is guessing.
 
-### Engagement Hierarchy (Inferred Weights)
+### The 19 confirmed action types
 
-| Tier | Actions | Est. Weight | Strategic Implication |
-|------|---------|-------------|----------------------|
-| **1. Multipliers** | P(reply), P(repost), P(quote) | w > 10.0 | High friction, network-extending actions. Algorithm prioritizes conversation. |
-| **2. Validators** | P(like), P(video_view), P(photo_expand) | w ≈ 1.0 | Lower friction, validates relevance. Necessary but insufficient alone. |
-| **3. Signals** | P(click), P(dwell), P(profile_click) | w < 1.0 | Passive signals for model training. Low weight prevents clickbait farming. |
-| **4. Destroyers** | P(block), P(mute), P(report) | w ≈ -1000 | Catastrophic negative weight. One block negates hundreds of likes. |
+Source: `phoenix/runners.py::ACTIONS` and `weighted_scorer.rs`:
 
-### The Math in Practice
+`favorite, reply, repost, photo_expand, click, profile_click, vqv (video quality view), share, share_via_dm, share_via_copy_link, dwell, quote, quoted_click, follow_author, not_interested, block_author, mute_author, report, dwell_time`
 
-**Engaging post**:
+The Rust `RankingScorer` additionally references `quoted_vqv`, `click_dwell_time`, and `not_dwelled`. **Note: there is no `bookmark` action and no `expand_details`/"Show more" action** — those were in earlier versions of this skill and have been removed.
+
+### Engagement hierarchy (DIRECTION confirmed, magnitude inferred)
+
+The repo confirms the **sign** of each action but NOT its weight. Treat the tiers below as relative ordering, not literal multipliers.
+
+| Tier | Actions | Sign | Strategic Implication |
+|------|---------|------|----------------------|
+| **1. Network-extending** | reply, repost, quote, share, share_via_dm, share_via_copy_link | positive | High-friction actions that push content to new networks. Algorithm is built around conversation. |
+| **2. Validators** | favorite, vqv (video), photo_expand, follow_author | positive | Lower friction, validate relevance. `vqv` only counts when `video_duration_ms > MIN_VIDEO_DURATION_MS`. |
+| **3. Passive signals** | click, profile_click, quoted_click, dwell, dwell_time | positive | Passive signals. Low weight by design to prevent clickbait farming. |
+| **4. Negative** | not_interested, block_author, mute_author, report, not_dwelled | negative | Push content down. See "How negatives actually work" below — it is NOT a `-1000` cliff. |
+
+### How negatives actually work (corrected)
+
+The previous version of this skill claimed blocks are weighted `~-1000x`. **That is wrong.** The codebase (`weighted_scorer.rs::offset_score` / `ranking_scorer.rs::offset_score`) does this:
+
 ```
-P(reply)=0.15, P(like)=0.08, P(repost)=0.02, P(block)=0.001
-Score = (15×0.15) + (1×0.08) + (12×0.02) + (-1000×0.001)
-Score = 2.25 + 0.08 + 0.24 - 1.0 = 1.57 ✓
+if combined_score < 0.0:
+    final = (combined_score + NEGATIVE_WEIGHTS_SUM) / WEIGHTS_SUM * NEGATIVE_SCORES_OFFSET
+else:
+    final = combined_score + NEGATIVE_SCORES_OFFSET
 ```
 
-**Rage-bait post**:
-```
-P(reply)=0.25, P(like)=0.05, P(repost)=0.03, P(block)=0.02
-Score = (15×0.25) + (1×0.05) + (12×0.03) + (-1000×0.02)
-Score = 3.75 + 0.05 + 0.36 - 20.0 = -15.84 ✗ (demoted)
-```
+Negative actions still hurt — they pull `combined_score` toward/below zero, and a negative `combined_score` is renormalized into a small bounded range. But the effect is a **bounded floor**, not an unbounded `-1000` penalty that "negates hundreds of likes" with a single block. The strategic takeaway is unchanged (negative signals are disproportionately damaging and you should minimize them), but stop quoting the fake `-1000` math.
 
-**Key insight**: The rage-bait generated MORE engagement but scored WORSE because of the 2% block rate.
+### The strategic takeaway
+
+You cannot compute a literal score without X's private weights. What you CAN rely on from the code:
+1. Positive actions sum; negative actions subtract; the result is normalized.
+2. Conversation/amplification actions are the highest-value class.
+3. Negative actions disproportionately damage reach (renormalization floor).
+4. Video `vqv` only scores if the video clears a minimum duration.
 
 ---
 
@@ -94,15 +113,18 @@ Score = 3.75 + 0.05 + 0.36 - 20.0 = -15.84 ✗ (demoted)
 
 These are the specific, hard-coded mechanisms that determine content fate—derived directly from the codebase.
 
-| # | Mechanic | Key Insight | Action |
-|---|----------|-------------|--------|
-| 1 | Candidate Isolation | Posts scored independently, not on a curve | Focus on intrinsic quality |
-| 2 | Author Diversity Penalty | 0.3-0.7x penalty per consecutive post | Space posts 4-6+ hours apart |
-| 3 | Negative Signal Asymmetry | Blocks weighted ~1000x vs likes | Target <0.5% block rate |
-| 4 | Multimodal Bonus | Media adds P(video_view), P(photo_expand) | Always include media |
-| 5 | Grok Semantic Reading | LLM detects topic mismatch, spam patterns | Hashtags must match content |
-| 6 | Two-Tower Retrieval | dot(User, Item) vectors for discovery | Build concentrated niche first |
-| 7 | Time Decay | Exponential decay after 24-48h | Post when audience is active |
+| # | Mechanic | Key Insight | Source | Action |
+|---|----------|-------------|--------|--------|
+| 1 | Candidate Isolation | Posts scored independently via attention masking, not on a curve | `phoenix/README.md` attention mask | Focus on intrinsic quality |
+| 2 | Author Diversity Penalty | `(1-floor)·decay^position + floor` per repeat author IN ONE FEED | `author_diversity_scorer.rs` | Diversify; don't expect 5 posts in one feed |
+| 3 | Negative Signal Renormalization | Negatives pull score below zero → bounded renormalization (NOT a -1000 cliff) | `weighted_scorer.rs::offset_score` | Minimize blocks/mutes/reports/not-interested |
+| 4 | Multimodal Bonus | Media adds `photo_expand` + `vqv` terms; `vqv` needs min video duration | `weighted_scorer.rs` vqv_weight_eligibility | Include media; videos must clear min length |
+| 5 | OON Demotion | Out-of-network posts multiplied by `OonWeightFactor` (<1) | `oon_scorer.rs`, `ranking_scorer.rs` | In-network reach is structurally favored |
+| 6 | Two-Tower Retrieval | `dot(UserTower, ItemTower)` over a global corpus for OON discovery | `phoenix/recsys_retrieval_model.py` | Build a concentrated niche embedding |
+| 7 | Age Filter | Hard cutoff: posts older than `max_age` are dropped before scoring | `home-mixer/filters/age_filter.rs` | Post when audience is active; early velocity matters |
+| 8 | Grox Content Understanding | Separate service classifies spam, post category, "banger" potential, PTOS safety | `grox/` service | Avoid spam patterns; quality content gets a positive screen |
+
+> Note on Mechanic 2: the `AuthorDiversityScorer` deduplicates authors **within a single feed response**, not across a day. The "space posts 4-6 hours apart" advice is still reasonable for impression fatigue, but the code mechanism is per-response author attenuation, not a cross-session timer.
 
 ### 1. Candidate Isolation (Fair Scoring)
 
@@ -119,41 +141,48 @@ The `AuthorDiversityScorer` tracks which authors have already been selected for 
 - Quality over quantity is mathematically enforced
 - "Posting sprees" compound penalties—your 3rd post in an hour may score 0.3 × 0.3 = 0.09x
 
-### 3. Negative Signal Asymmetry (Harm Reduction)
+### 3. Negative Signal Renormalization (Harm Reduction)
 
-Negative weights are ~1000x positive weights. The system operates on **harm reduction over engagement maximization**.
+Correction from prior versions: there is **no `-1000` weight**. The mechanism (`weighted_scorer.rs` / `ranking_scorer.rs`) is:
 
-**The propagation effect**: A block doesn't just lower one post's score—it:
-- Affects your reputation within that user's cluster
-- Demotes future content to similar users
-- Contributes to a hidden "author health" score
+- All actions (positive and negative) are summed into `combined_score`.
+- If `combined_score` ends up negative, it is renormalized: `(combined_score + negative_weights_sum) / total_weights_sum * NEGATIVE_SCORES_OFFSET`.
+- If positive, it just gets `+ NEGATIVE_SCORES_OFFSET`.
 
-**Safe zone**: Target <0.5% block rate. Above 1% = systematic demotion.
+So negative actions still operate on **harm reduction over engagement maximization** — enough negative signal flips a post into the negative-score bucket where it is heavily suppressed. But the penalty is a **bounded floor**, not an exploding multiplier. Do not present per-block point math (e.g. "one block = -1000 likes") as fact; the weights are private feature-switch values.
+
+**Author-level reputation, cluster demotion, and "author health score" are NOT in this open-source release.** They are plausible but unverified — flag them as inference, not code-confirmed.
+
+**Practical guidance (unchanged):** keep `not_interested` / `block` / `mute` / `report` as low as possible. They are the only thing that can flip an otherwise-good post negative.
 
 ### 4. Multimodal Shadow Algorithms
 
-Phoenix predicts **media-specific probabilities**: P(video_view), P(photo_expand). These are distinct scoring terms.
+Phoenix predicts **media-specific probabilities**: `vqv` (video quality view) and `photo_expand`. These are distinct scoring terms.
 
 **Text-only posts forfeit these entirely**:
 ```
 Text:  Score = w_reply×P(reply) + w_like×P(like)
-Media: Score = w_reply×P(reply) + w_like×P(like) + w_video×P(video_view)
+Media: Score = w_reply×P(reply) + w_like×P(favorite) + w_vqv×P(vqv) + w_photo×P(photo_expand)
 ```
 
 **The media bonus is structural, not optional.**
 
-### 5. Grok Semantic Understanding
+### 5. Grok-Based Ranking + Grox Content Understanding
 
-The Heavy Ranker is adapted from Grok-1. It doesn't just count features—it **reads the content**.
+Two distinct Grok-related systems are in the repo — don't conflate them:
 
-**What Grok detects**:
-- Semantic topic relevance to user's interest embedding
-- Tone/style matching (formal, casual, technical, humorous)
-- Sarcasm and irony patterns
-- Hashtag-content mismatches (spam signal)
-- Linguistic authenticity markers
+**a) The Phoenix ranker (Grok-1 transformer).** The ranking model in `phoenix/` is "ported from the Grok-1 open source release ... adapted for recommendation system use cases" (`phoenix/README.md`). It is a transformer that consumes your engagement history as a sequence and predicts the 19 action probabilities. It is NOT a chat-style LLM reading your post and reasoning about it in natural language. It works on **hash-based embeddings** of post IDs, author IDs, and actions. So "Grok literally reads your tweet" overstates it for the ranking stage — the ranker learns relevance from engagement-sequence patterns, not from prose comprehension.
 
-**The death of hacks**: Irrelevant trending hashtags now hurt you. Grok sees the semantic mismatch and flags it as spam-like behavior.
+**b) The Grox content-understanding service (new in this release).** `grox/` is a separate task-execution service with classifiers and embedders. Confirmed tasks include:
+- `task_spam_detection.py` — spam classification (with a low-follower spam classifier)
+- `task_safety_ptos_policy.py` / `task_safety_ptos_category.py` — PTOS policy/safety enforcement
+- `task_banger_screen.py` — a "banger initial screen" classifier that scores post/topic quality
+- `task_multimodal_post_embedding.py` — multimodal (text+image+video) post embeddings
+- `task_post_safety_screen_deluxe.py` — post safety screening
+
+This is where genuine content understanding happens (spam, safety, category, multimodal embedding). The `BangerInitialScreenClassifier` is the closest thing to a "quality score" — high-quality posts get a positive screen.
+
+**The death of hacks (still true):** spam-like behavior, low-effort patterns, and unsafe content are caught by Grox classifiers and by negative-action prediction. Hashtag stuffing remains a bad idea, but the precise "Grok sees hashtag-content mismatch" claim is inference, not a code-confirmed feature.
 
 ### 6. Two-Tower Retrieval (Cold Start Solution)
 
@@ -167,11 +196,21 @@ Out-of-network discovery uses a **Two-Tower Neural Network**:
 2. Build niche first (concentrated topic cluster builds clear embedding)
 3. Engage authentically (your reply history shapes your User Tower)
 
-### 7. Time Decay Filter
+### 7. Age Filter (Hard Cutoff, Not Decay)
 
-The `AgeFilter` applies exponential decay. Content from 24 hours ago can survive with strong signals; 48+ hours requires exceptional engagement.
+Correction: `home-mixer/filters/age_filter.rs` is a **hard binary filter**, not an exponential decay curve. It computes the post's age from its tweet ID and drops any candidate older than `max_age`:
 
-**Optimal timing**: Post when your audience is active to maximize early engagement velocity. Early signals compound through the decay function.
+```rust
+fn is_within_age(&self, tweet_id: u64) -> bool {
+    duration_since_creation_opt(tweet_id)
+        .map(|age| age <= self.max_age)
+        .unwrap_or(false)
+}
+```
+
+There is no graded decay multiplier in this filter — a post is either within the window or removed entirely before scoring. The `max_age` value is a config parameter and is not published in the repo.
+
+**Optimal timing (still valid):** post when your audience is active so early engagement accrues while the post is fresh and still inside the candidate window. Out-of-network discovery via Phoenix retrieval also favors recent posts (the demo corpus is a 6-hour window).
 
 ---
 
@@ -188,8 +227,8 @@ digraph content_flow {
     grow [label="Follower Growth\nOptimize P(profile_click)"];
     safe [label="Safe Growth\nMinimize P(block)"];
     reply_opt [label="Apply reply patterns\n(questions, fill-blanks, controversy)"];
-    media [label="Add media\n(+P(video_view), +P(photo_expand))"];
-    scan [label="Negative signal scan\n(<0.5% block rate?)" shape=diamond];
+    media [label="Add media\n(+P(vqv), +P(photo_expand))"];
+    scan [label="Negative signal scan\n(low not_interested/block/mute?)" shape=diamond];
     post [label="Post" shape=doublecircle];
     revise [label="Revise content"];
 
@@ -220,7 +259,7 @@ digraph content_flow {
 
 ### Step 2: Apply the Reply Optimization
 
-P(reply) carries ~10-15x weight. Structure content to maximize it:
+Replies are a top-tier network-extending action (exact weight is a private feature-switch param). Structure content to maximize them:
 
 **High P(reply) patterns**:
 - Open questions demanding specific experience: "What's your biggest [X] failure?"
@@ -284,13 +323,15 @@ Threads are scored **per tweet**. The algorithm evaluates Tweet 1 independently.
 
 ## Platform Specs (Quick Reference)
 
+> These are UX/craft heuristics, not algorithm parameters. The repo confirms media adds the `photo_expand` and `vqv` action terms; everything else below is sensible practice, not code-derived.
+
 | Element | Optimal | Why |
 |---------|---------|-----|
-| **Characters** | 71-100 (max 280) | No "Show more" friction |
-| **Hashtags** | 0-1, semantically matched | Grok detects mismatch as spam |
-| **Images** | 1200×675px or vertical | Full preview; vertical forces expand |
-| **Video** | <2:20, hook in 3s, captioned | Autoplay + 80% watch muted |
-| **Media source** | Native upload only | Links don't trigger media probabilities |
+| **Characters** | 71-100 (max 280) | Reduce reader friction (heuristic, not a scoring term) |
+| **Hashtags** | 0-1 | Low-effort/spammy patterns risk Grox spam classification |
+| **Images** | 1200×675px or vertical | Vertical crops in feed → invites the `photo_expand` action |
+| **Video** | Hook in 3s, captioned, clears min duration | `vqv` only scores when `video_duration_ms > MIN_VIDEO_DURATION_MS` |
+| **Media source** | Native upload only | Links don't produce `photo_expand`/`vqv` terms |
 
 ---
 
@@ -299,39 +340,39 @@ Threads are scored **per tweet**. The algorithm evaluates Tweet 1 independently.
 When content underperforms, diagnose against the weighted scorer:
 
 ### Low Reach Despite Engagement
-**Likely cause**: High P(block) rate negating positive signals
+**Likely cause**: Negative actions (`not_interested`/`block`/`mute`/`report`) pulling the score into the suppressed bucket.
 **Check**: Is content polarizing? Does it generate negative reactions alongside positive?
 
 ### High Impressions, Low Engagement
-**Likely cause**: Weak P(reply) and P(repost) optimization
+**Likely cause**: Weak network-extending signal (reply/repost/quote/share).
 **Check**: Does content invite response? Is it shareable?
 
 ### New Account Struggling
-**Likely cause**: Weak User Tower embedding, cold start problem
-**Solution**: Build concentrated topic presence, ride trends, engage authentically
+**Likely cause**: Weak User Tower embedding, cold-start problem. Note: the repo has explicit new-user handling — a separate `PhoenixRankerNewUserInferenceClusterId` model and a `NewUserOonWeightFactor` (new users with enough follows get a different out-of-network weighting).
+**Solution**: Build a concentrated topic presence and engage authentically so your engagement sequence is informative.
 
 ### Declining Reach Over Time
-**Likely cause**: Author health score degradation from accumulated negative signals
-**Solution**: Audit recent content for block-generating patterns, rebuild with safer content
+**Likely cause**: Sustained negative-action rate. Note: a persistent per-author "health score" is NOT in this open-source release — treat it as inference. The code-confirmed mechanism is per-post negative-action prediction.
+**Solution**: Audit recent content for patterns that draw `not_interested`/`block`, rebuild with safer content.
 
 ---
 
 ## Anti-Patterns (Algorithmic Self-Sabotage)
 
 ### Engagement Pods
-Grok detects artificial coordination patterns. Clustered engagement from the same accounts with unusual timing = spam signal.
+Coordinated/low-follower reply spam is exactly what the Grox `SpamEapiLowFollowerClassifier` (`grox/tasks/task_spam_detection.py`) is built to catch. "Grok detects coordination patterns" is plausible but the specific coordination-graph claim is inference.
 
 ### Hashtag Stuffing
-Multiple irrelevant hashtags = semantic mismatch detection = spam adjacent score.
+Still a bad idea — low-effort, spam-adjacent. The precise "semantic mismatch detection" mechanism is inference, not a code-confirmed feature.
 
 ### Link-Only Posts
-Zero media probability terms + low text engagement = structural disadvantage.
+No media probability terms (`photo_expand`, `vqv`) + low intrinsic engagement = structural disadvantage.
 
 ### Rage-Farming
-High engagement + high blocks = net negative score. The math doesn't lie.
+Negative actions push `combined_score` negative, which renormalizes into the suppressed bucket. High engagement does not rescue it.
 
 ### Posting Sprees
-Author diversity penalty compounds. Post #3 in an hour may reach 10% of Post #1's audience.
+The `AuthorDiversityScorer` attenuates repeat authors **within one feed response** (`(1-floor)·decay^position + floor`). It is not a cross-day timer, but flooding still means your own posts compete against each other and get attenuated when more than one is a candidate.
 
 ---
 
@@ -358,9 +399,11 @@ from scripts.analyze_x_post import analyze_post, format_report, calculate_weight
 result = analyze_post("Your post text", include_media=True, media_type="image")
 print(format_report(result))
 
-# Calculate raw weighted score
+# Calculate raw weighted score (illustrative only — weights are inferred, not from the repo)
 score = calculate_weighted_score(p_reply=0.15, p_like=0.08, p_block=0.001)
 ```
+
+> The analysis script uses **inferred placeholder weights**. X's real weights are runtime feature-switch params not published in `xai-org/x-algorithm`. Use the script for relative comparison between two drafts, never as an absolute score.
 
 ---
 
@@ -370,9 +413,33 @@ score = calculate_weighted_score(p_reply=0.15, p_like=0.08, p_block=0.001)
 **New paradigm**: Align with the neural network's objective function
 
 The algorithm optimizes for:
-1. Conversation (P(reply) weighted highest)
-2. Network extension (P(repost), P(quote))
-3. User satisfaction (negative signals weighted catastrophically)
-4. Semantic relevance (Grok reads everything)
+1. Conversation and amplification (reply, repost, quote, share — the top-tier positive actions)
+2. Relevance to your engagement-history embedding (Phoenix ranker)
+3. User satisfaction (negative actions renormalize the score into the suppressed bucket)
+4. Content quality and safety (Grox classifiers: spam, PTOS safety, banger screen)
 
 **Your strategy**: Create content that genuinely maximizes these. The era of manipulation is over; the era of alignment has begun.
+
+---
+
+## What Changed (2026-05-15)
+
+Re-audit of this skill against the `xai-org/x-algorithm` repo (May 15, 2026 release). Corrections applied:
+
+| Area | Old claim | Corrected |
+|------|-----------|-----------|
+| Action list | Included `bookmark`, `expand_details`/"Show more" | Repo's `phoenix/runners.py::ACTIONS` lists 19 actions; **no `bookmark`, no `expand_details`**. Confirmed set: favorite, reply, repost, photo_expand, click, profile_click, vqv, share, share_via_dm, share_via_copy_link, dwell, quote, quoted_click, follow_author, not_interested, block_author, mute_author, report, dwell_time. Rust `RankingScorer` adds `quoted_vqv`, `click_dwell_time`, `not_dwelled`. |
+| Negative weights | "Blocks weighted ~-1000x; one block ≈ -1000 likes" | No such number. `offset_score` renormalizes a negative `combined_score` via `(combined + negative_sum)/total_sum * NEGATIVE_SCORES_OFFSET` — a **bounded floor**, not a -1000 cliff. Worked-math examples (-25.42 etc.) were fabricated. |
+| Weight values | Quoted specific weights (15/12/10/1/-1000) as if from `main.rs` | Weights come from a runtime feature-switch `Params` system (`params.get(FavoriteWeight)`...). **Not in the repo.** All numbers are inferred. |
+| Time decay | "`AgeFilter` applies exponential decay" | `age_filter.rs` is a **hard binary cutoff** at `max_age`. No decay curve. |
+| Grok "reads your tweet" | LLM reads post prose, detects sarcasm/tone/hashtag-mismatch | The Phoenix **ranker** is a Grok-1-derived transformer over hash-based ID embeddings + engagement sequences — not prose comprehension. Content reading lives in the separate **Grox** service (spam, PTOS safety, banger screen, multimodal embeddings). |
+| Author "health score" / cluster shadowban | Presented as code-confirmed | Not in this release. Flagged as inference. |
+| Video signal | `P(video_view)` | Actual action is `vqv` (video quality view); only scores when `video_duration_ms > MIN_VIDEO_DURATION_MS`. |
+
+### New since prior version
+- **Grox content-understanding service** (`grox/`): spam detection, PTOS safety policy/category, "banger" quality screen, multimodal post embeddings, ASR, reply ranking.
+- **Ads blending** (`home-mixer/ads/`): `SafeGapAdsBlender` / `PartitionOrganicBlender` inject ads into safe gaps with brand-safety tracking.
+- **New candidate sources**: ads, who-to-follow (max 3), Phoenix MoE retrieval, Phoenix topics, prompts, push-to-home.
+- **OON demotion confirmed**: `oon_scorer.rs` / `ranking_scorer.rs` multiply out-of-network candidates by `OonWeightFactor`; topic requests use `TopicOonWeightFactor`; eligible new users use `NewUserOonWeightFactor`.
+- **Richer query hydration**: followed topics, starter packs, impression bloom filters, IP, mutual-follow graph, served history, inferred gender/demographics.
+- **End-to-end pipeline**: `phoenix/run_pipeline.py` runs retrieval → ranking from exported checkpoints; a ~3 GB pre-trained mini Phoenix model ships via Git LFS.
