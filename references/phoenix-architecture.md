@@ -1,6 +1,8 @@
 # Phoenix Architecture Deep Dive
 
-Technical breakdown of X's neural recommendation system based on the `xai-org/x-algorithm` codebase analysis.
+Technical breakdown of X's neural recommendation system based on the `xai-org/x-algorithm` codebase.
+
+> **Updated 2026-05-15.** Re-audited against the May 15, 2026 repo release (`phoenix/README.md`, `phoenix/recsys_model.py`, `phoenix/recsys_retrieval_model.py`, `phoenix/run_pipeline.py`, `home-mixer/`). Several earlier claims about the ranker "reading text", detecting sarcasm, and "soft filters with score penalty" were inference presented as fact and have been corrected. The Phoenix ranker operates on **hash-based ID embeddings**, not natural-language prose. Genuine content reading lives in the separate **Grox** service.
 
 ---
 
@@ -149,63 +151,35 @@ Two-Tower models are efficient at clustering. If your User Tower embedding drift
 
 Once Thunder and Phoenix Retrieval provide candidates (~500-2000 posts), the Heavy Ranker scores them.
 
-### Why Grok?
+### Why Grok-derived?
 
-Traditional rankers (GBDT, DLRM) rely on explicit feature engineering:
-- `is_video`
-- `follower_count`
-- `time_since_post`
-- `has_hashtag`
+Per `phoenix/README.md`: the ranking transformer is "ported from the Grok-1 open source release ... adapted for recommendation system use cases **with custom input embeddings and attention masking for candidate isolation**." So it reuses the Grok-1 transformer *architecture*, not a chat LLM that reasons about your post in language.
 
-The Grok adaptation treats **recommendation as language modeling**:
-- User interaction history = sequence of tokens
-- Candidate post = token to attend to
-- Relevance inferred from semantic understanding
+> **Important correction.** The ranker does NOT tokenize and "read" your post text. It consumes **hash-based ID embeddings** — `run_pipeline.py::build_hash_functions` hashes user IDs, post (item) IDs, and author IDs into embedding-table lookups. Each history item is `(post_id, author_id, actions)`. Relevance is learned from your **engagement-sequence patterns**, not from prose comprehension. Natural-language content understanding happens in the separate **Grox** service.
 
-### Model Architecture
+### Model Architecture (mini config, from `phoenix/README.md`)
 
-Adapted from `xai-org/grok-1`:
-- Transformer architecture with massive parameter count
-- Pre-trained on text corpus (understands semantics)
-- Fine-tuned for engagement prediction
+| Parameter | Value (released mini model) |
+|---|---|
+| Embedding dimension | 128 (production is wider) |
+| Transformer layers | 4 (production has more) |
+| Attention heads | 4 |
+| Key size | 32 |
+| History sequence length | 127 |
+| Candidate sequence length | 64 |
+| User/Item/Author vocab | 1,000,000 each |
+| Hashes per entity | 2 |
+| Action types | 19 |
 
-**Input Sequence**:
-```
-[USER_CONTEXT] [SEP] [CANDIDATE_POST]
-
-USER_CONTEXT includes:
-- Recent engagement history (embedded)
-- Demographic features
-- Session context
-
-CANDIDATE_POST includes:
-- Full text content
-- Media features
-- Author embedding
-```
+The released checkpoint is a **frozen snapshot** of a model normally trained continuously on real-time engagement data. The retrieval/ranking inputs are: User Embedding `[B,1]`, History Embeddings `[B,S,D]` (posts + authors + actions + product surface), Candidate Embeddings `[B,C,D]`.
 
 ### Multi-Task Prediction Head
 
-The model outputs a **logit vector** for multiple actions:
+The model outputs `[B, num_candidates, num_actions]` logits → probabilities for the **19 confirmed actions** (`runners.py::ACTIONS`): `favorite, reply, repost, photo_expand, click, profile_click, vqv, share, share_via_dm, share_via_copy_link, dwell, quote, quoted_click, follow_author, not_interested, block_author, mute_author, report, dwell_time`.
 
-```python
-output = {
-    "P(like)": 0.12,
-    "P(reply)": 0.08,
-    "P(repost)": 0.03,
-    "P(quote)": 0.02,
-    "P(video_view)": 0.15,  # if video
-    "P(photo_expand)": 0.10,  # if image
-    "P(click)": 0.20,
-    "P(dwell)": 0.35,
-    "P(profile_click)": 0.05,
-    "P(block)": 0.002,
-    "P(mute)": 0.003,
-    "P(report)": 0.0001
-}
-```
+Note the real names: the video action is `vqv` (video quality view), not `P(video_view)`; there is no `bookmark`. The four negative actions are `not_interested`, `block_author`, `mute_author`, `report`.
 
-**Advantage**: WeightedScorer can adjust feed behavior (e.g., "optimize for replies today") without retraining the model.
+**Advantage**: the weighted scorer can adjust feed behavior (its weights are runtime feature-switch params) without retraining the model.
 
 ### Candidate Isolation Mechanism
 
@@ -236,34 +210,26 @@ M[candidate_i][user_context] = 0  (allowed)
 
 ---
 
-## Semantic Understanding Capabilities
+## Content Understanding: The Grox Service
 
-Because Grok is pre-trained on massive text corpora, it understands:
+Content understanding is NOT done by the Phoenix ranker. It is a **separate service**, `grox/`, new/expanded in the May 2026 release. Grox is a task-execution engine with classifiers and embedders. Code-confirmed tasks (`grox/tasks/`, `grox/plans/`):
 
-### Topic Relevance
-- Matches post topics to user's demonstrated interest clusters
-- No keyword matching—semantic understanding of concepts
-- "AI safety" matches users interested in "machine learning risks"
+| Task / Plan | What it does |
+|-------------|--------------|
+| `task_spam_detection.py` | Spam classification, incl. a low-follower reply-spam classifier (`SpamEapiLowFollowerClassifier`) |
+| `task_safety_ptos_policy.py`, `task_safety_ptos_category.py` | PTOS safety policy + category enforcement |
+| `task_post_safety_screen_deluxe.py` | Post safety screening |
+| `task_banger_screen.py` | "Banger initial screen" — a content/topic quality classifier, cross-referenced against Grok topics |
+| `task_multimodal_post_embedding.py`, `multimodal_post_embedder_v5.py` | Multimodal (text + image + video) post embeddings |
+| `task_asr.py` | Audio transcription |
+| `task_rank_replies.py`, `plan_reply_ranking.py` | Reply ranking |
 
-### Tone Matching
-- Formal vs. casual vs. technical vs. humorous
-- User history reveals tone preferences
-- Mismatched tone = lower relevance score
+What this means for creators (grounded, not inference):
+- Spam-like and low-effort patterns are caught by explicit classifiers, especially for low-follower accounts replying.
+- Unsafe / PTOS-violating content is screened and will be filtered.
+- High-quality content gets a positive "banger" screen — closest thing to a quality score.
 
-### Sarcasm and Irony Detection
-- Pre-training includes internet text with ironic patterns
-- Can distinguish genuine sentiment from sarcastic statement
-- Important for accurate P(like) and P(block) prediction
-
-### Spam Detection
-- Hashtag-content semantic mismatch = spam signal
-- Repetitive patterns across posts = spam signal
-- Engagement pod coordination = artificial pattern detection
-
-### Authenticity Markers
-- Writing style consistency
-- Topic expertise signals in language use
-- First-person vs. corporate tone
+What is **NOT** code-confirmed (do not state as fact): tone matching, sarcasm/irony detection, hashtag-content semantic-mismatch scoring, writing-style authenticity markers, engagement-pod coordination graphs. These are plausible but inference.
 
 ---
 
@@ -296,31 +262,24 @@ Phoenix Transformer processes all candidates:
 - Batched inference with Candidate Isolation mask
 - Predicts probability vector for each candidate
 
-### 5. Weighted Scoring
-```python
-for candidate in candidates:
-    candidate.score = sum(
-        weights[action] * candidate.probabilities[action]
-        for action in actions
-    )
-```
+### 5. Scoring
+Scorers run in sequence (`home-mixer/scorers/`): `PhoenixScorer` (ML predictions) → `WeightedScorer`/`RankingScorer` (combine into one number via `Σ weight×P(action)` then `offset_score`) → `AuthorDiversityScorer` → `OONScorer`. See `weighted-scorer.md` for the exact formulas.
 
-### 6. Post-Selection Filtering
+### 6. Filtering — two distinct stages
 
-**Hard Filters** (immediate removal):
-- `TrustAndSafetyModels`: NSFW, abusive, spam, illegal
-- `SocialGraphBlocks`: Viewer blocked author
-- `DropDuplicates`: Same tweet, retweeted variants
+**Pre-scoring filters** (`home-mixer/filters/`, run BEFORE scoring — these are hard removals, not score penalties):
+- `DropDuplicatesFilter`, `CoreDataHydrationFilter`, `AgeFilter` (hard binary cutoff at `max_age`), `SelfpostFilter`/`SelfTweetFilter`, `RetweetDeduplicationFilter`, `IneligibleSubscriptionFilter`, `PreviouslySeenPostsFilter`, `PreviouslyServedPostsFilter`, `MutedKeywordFilter`, `AuthorSocialgraphFilter` (blocked/muted authors), `VideoFilter`, `TopicIdsFilter`, `NewUserTopicIdsFilter`.
 
-**Soft Filters** (score penalty):
-- `AgeFilter`: Exponential decay for older posts
-- `SelfPostFilter`: Remove user's own posts
-- `AuthorDiversityScorer`: Penalize repeated authors
+**Post-selection filters** (run AFTER top-K selection):
+- `VFFilter` / `AncillaryVfFilter`: visibility filtering — deleted/spam/violence/gore.
+- `DedupConversationFilter`: dedupe multiple branches of the same conversation thread.
 
-### 7. Final Assembly
-- Select top K posts (likely 20-50)
-- Order by final score
-- Serve to client
+> Correction: there are no "soft filters with score penalty." Filters either keep or drop a candidate. `AuthorDiversityScorer` is a *scorer* (it attenuates scores), not a filter. `AgeFilter` is a hard binary cutoff, not exponential decay.
+
+### 7. Selection, Ads Blending, Assembly
+- `TopKScoreSelector` sorts by final score and takes top K.
+- `BlenderSelector` + `home-mixer/ads/` (`SafeGapAdsBlender`, `PartitionOrganicBlender`) inject ads into safe gaps with brand-safety tracking.
+- Side effects cache request info; response served to client.
 
 ---
 
@@ -355,7 +314,7 @@ New users/creators have weak embeddings:
 **Engage Authentically**:
 - Your reply/engagement history shapes your User Tower
 - Following and engaging in your target niche builds the right embedding
-- Engagement pods backfire (Grok detects artificial patterns)
+- Engagement pods backfire (the Grox spam classifier targets low-follower coordinated replies)
 
 ---
 
@@ -389,20 +348,40 @@ Once Author Health degrades, recovery is slow:
 
 ## Architectural Implications for Strategy
 
-### 1. Semantic Alignment > Metadata Gaming
-Grok reads everything. Hashtag tricks, keyword stuffing, timing hacks—all detectable as inauthentic patterns. Create content that genuinely matches your target audience's semantic preferences.
+### 1. Alignment > Metadata Gaming
+The ranker learns from engagement-sequence patterns; Grox classifiers screen spam and safety. Hashtag tricks and keyword stuffing are low-effort patterns that risk Grox spam classification. Create content that genuinely matches your target audience.
 
 ### 2. Conversation is Currency
-P(reply) weighted ~10-15x vs P(like). Design content that demands response, not just appreciation.
+Reply / repost / quote / share are the top-tier network-extending positive actions. Design content that demands response, not just appreciation. (Exact weights are private feature-switch params — do not quote a multiplier.)
 
-### 3. Negative Signals are Catastrophic
-The -1000x weight on blocks means a 1% block rate devastates reach. Safe content with 50% of the engagement beats polarizing content with 100%.
+### 3. Negative Signals are Disproportionately Damaging
+Enough negative actions (`not_interested`/`block`/`mute`/`report`/`not_dwelled`) flip `combined_score` negative, which renormalizes the post into the suppressed bucket. Safe content with 50% of the engagement beats polarizing content with 100% blocks. (There is NO `-1000` weight — see `weighted-scorer.md`.)
 
 ### 4. Media is Structural Advantage
-Text-only posts forfeit entire probability terms. The scoring formula literally has fewer positive components.
+Text-only posts forfeit the `photo_expand` and `vqv` terms. Videos must clear `MIN_VIDEO_DURATION_MS` for `vqv` to count.
 
-### 5. Author Diversity is Enforced
-The algorithm wants variety. High-frequency posting has mathematically diminishing returns. One great post beats five good posts.
+### 5. Author Diversity is Enforced (Per Feed Response)
+`AuthorDiversityScorer` attenuates repeat authors within a single feed build. It is not a cross-day timer, but flooding still means your posts compete against each other.
 
-### 6. Cold Start Requires Strategy
-New accounts need deliberate embedding construction. Pick a niche, engage authentically, ride trends—then expand.
+### 6. In-Network Reach is Favored
+`OONScorer` multiplies out-of-network candidates by `OonWeightFactor` (< 1). Your followers see you more cheaply than the For You page does.
+
+### 7. Cold Start Has Explicit System Support
+New accounts get a dedicated ranker cluster (`PhoenixRankerNewUserInferenceClusterId`) and a `NewUserOonWeightFactor` that shows them more out-of-network content. Pick a niche, engage authentically — your engagement sequence is what builds your embedding.
+
+---
+
+## What's New in the May 2026 Release
+
+- **`grox/` content-understanding service** — spam, PTOS safety, banger quality screen, multimodal embeddings, ASR, reply ranking.
+- **Ads blending** (`home-mixer/ads/`) — `SafeGapAdsBlender` and `PartitionOrganicBlender` inject ads into safe gaps with brand-safety hydrators.
+- **New candidate sources** — `ads_source`, `who_to_follow_source` (max 3 accounts), `phoenix_moe_source` (mixture-of-experts retrieval), `phoenix_topics_source`, `prompts_source`, `push_to_home_source`.
+- **Expanded query hydration** — followed Grok topics, starter packs, impression bloom filters, IP, mutual-follow Jaccard graph, served history, inferred gender/demographics.
+- **End-to-end pipeline** — `phoenix/run_pipeline.py` runs retrieval → ranking from exported checkpoints, replacing the separate `run_ranker.py` / `run_retrieval.py` as the entry point (both legacy scripts still ship). A ~3 GB pre-trained mini Phoenix model is distributed via Git LFS.
+- **`RankingScorer`** — newer Rust scorer that folds weighted scoring + author diversity + OON into one component and reads all weights from the feature-switch `Params` system.
+
+---
+
+## Changelog
+
+- **2026-05-15** — Re-audited against the `xai-org/x-algorithm` May 2026 release. Corrected: ranker does not read prose (hash-based ID embeddings); no `-1000` block weight (bounded `offset_score` renormalization); `AgeFilter` is a hard cutoff not decay; no "soft filters"; action list corrected (`vqv` not `video_view`, no `bookmark`/`expand_details`); added Grox service, ads blending, new sources, OON demotion, new-user handling.

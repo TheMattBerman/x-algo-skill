@@ -11,7 +11,7 @@
 | **Reply Maximizers** | P(reply) optimization | Low |
 | **Shareability Drivers** | P(repost), P(quote) optimization | Low-Medium |
 | **Growth Accelerators** | P(profile_click), follower conversion | Medium |
-| **Media Optimizers** | P(video_view), P(photo_expand) | Low |
+| **Media Optimizers** | vqv (video quality view), photo_expand | Low |
 | **High-Risk/High-Reward** | Contrarian, viral attempts | Medium-High |
 
 ---
@@ -170,7 +170,7 @@ Stop optimizing every post. Double down on what's already working.
 
 **Algorithm alignment**:
 - P(repost): ↑↑↑↑ (sharers want to spread insight)
-- P(bookmark): ↑↑↑ (reference value)
+- P(repost)/P(share): ↑↑↑ (reference value)
 - P(reply): ↑↑ (questions about methodology)
 - **Est. score contribution**: +2.0 to +3.5
 
@@ -220,7 +220,7 @@ Score everything 1-10, multiply, prioritize highest.
 - Creates "save for later" impulse
 
 **Algorithm alignment**:
-- P(bookmark): ↑↑↑↑ (high save rate)
+- P(repost)/P(share): ↑↑↑↑ (high save rate)
 - P(repost): ↑↑↑ (utility sharing)
 - P(reply): ↑↑ (questions, additions, critiques)
 - **Est. score contribution**: +1.5 to +3.0
@@ -309,7 +309,7 @@ Here's the exact system (steal it):
 **Algorithm alignment (Tweet 1)**:
 - P(click): ↑↑↑ (to see thread)
 - P(profile_click): ↑↑↑↑ (high follow conversion)
-- P(bookmark): ↑↑↑ (save for later)
+- P(repost)/P(share): ↑↑↑ (save for later)
 - **Est. score contribution**: +1.5 to +2.5
 
 **Critical**: Don't make Tweet 1 just "Thread! 🧵"—it must hook independently.
@@ -348,7 +348,7 @@ Your product is proof you can execute. The market is proof there's something wor
 
 **Algorithm alignment**:
 - P(profile_click): ↑↑↑↑ (want more insights)
-- P(bookmark): ↑↑↑
+- P(repost)/P(share): ↑↑↑
 - P(reply): ↑↑ (questions, agreement, disagreement)
 - **Est. score contribution**: +1.5 to +2.5
 
@@ -401,7 +401,7 @@ Which loop are you optimizing for?
 
 ### 10. The Video Hook
 
-**Purpose**: Maximize P(video_view) through first-second optimization
+**Purpose**: Maximize P(vqv) through first-second optimization
 
 **Format**:
 ```
@@ -427,10 +427,10 @@ This one habit is why some founders succeed while others burn out:
 - Video gets visual priority in feed
 - Early hook captures attention before scroll
 - Captions enable silent consumption
-- Native upload (not links) triggers P(video_view)
+- Native upload (not links) triggers P(vqv)
 
 **Algorithm alignment**:
-- P(video_view): ↑↑↑↑ (if hook works)
+- P(vqv): ↑↑↑↑ (if hook works)
 - P(like): ↑↑
 - P(repost): ↑↑ (if valuable)
 - **Est. score contribution**: +2.0 to +3.5 (with video bonus)
@@ -608,7 +608,7 @@ Which one took you longest to learn?
 
 **Algorithm alignment**:
 - P(like): ↑↑↑ (easy to appreciate)
-- P(bookmark): ↑↑↑ (reference value)
+- P(repost)/P(share): ↑↑↑ (reference value)
 - P(reply): ↑↑ (specific points to comment on)
 - **Est. score contribution**: +1.0 to +2.0
 

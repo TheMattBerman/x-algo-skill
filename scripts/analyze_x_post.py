@@ -3,7 +3,8 @@
 X Algorithm Post Analyzer
 
 Analyzes posts against X's Phoenix + Thunder weighted scorer mechanics.
-Based on analysis of the xai-org/x-algorithm codebase.
+Based on analysis of the xai-org/x-algorithm codebase (May 2026 release).
+    NOTE: weights are illustrative placeholders, not X's real (private) weights.
 
 Usage:
     from analyze_x_post import analyze_post, format_report, calculate_weighted_score
@@ -23,28 +24,48 @@ from enum import Enum
 # === CONFIGURATION: Inferred weights from algorithm analysis ===
 
 class ActionWeights:
-    """Estimated weights from weighted scorer analysis."""
-    # Tier 1: Multipliers
+    """ILLUSTRATIVE PLACEHOLDER WEIGHTS — NOT X's real weights.
+
+    X's actual weights are runtime feature-switch params (`params.get(ReplyWeight)`
+    etc.) and are NOT published in the xai-org/x-algorithm repo. These numbers are
+    only here so the analyzer can produce a *relative* comparison between two drafts.
+    Never present the output as an absolute algorithm score.
+
+    Action names below match the 19 confirmed actions in phoenix/runners.py::ACTIONS.
+    There is no `bookmark` action; the video action is `vqv` (video quality view).
+    """
+    # Tier 1: Network-extending (positive) — highest-value class
     REPLY = 15.0
     REPOST = 12.0
     QUOTE = 10.0
+    SHARE = 9.0
 
-    # Tier 2: Validators
-    LIKE = 1.0
-    VIDEO_VIEW = 1.2
+    # Tier 2: Validators (positive)
+    FAVORITE = 1.0       # "like"
+    VQV = 1.2            # video quality view (only counts if video clears min duration)
     PHOTO_EXPAND = 1.0
-    BOOKMARK = 1.5
+    FOLLOW_AUTHOR = 2.0
 
-    # Tier 3: Signals
+    # Tier 3: Passive signals (positive)
     CLICK = 0.3
     DWELL = 0.5
     PROFILE_CLICK = 0.4
 
-    # Tier 4: Destroyers
-    BLOCK = -1000.0
-    MUTE = -500.0
-    REPORT = -2000.0
-    NOT_INTERESTED = -100.0
+    # Tier 4: Negative — placeholder magnitudes only.
+    # The repo does NOT use a flat -1000 cliff; offset_score() renormalizes a
+    # negative combined_score into a bounded range. These negatives are kept
+    # large only so the analyzer flags risky drafts. Do NOT quote them as fact.
+    BLOCK = -50.0
+    MUTE = -30.0
+    REPORT = -80.0
+    NOT_INTERESTED = -15.0
+
+    # Back-compat aliases (deprecated names)
+    LIKE = FAVORITE
+    VIDEO_VIEW = VQV
+    # `bookmark` is NOT a real X action. Kept only so legacy callers don't break;
+    # treated as a weak save-intent proxy. Prefer repost/share signals instead.
+    BOOKMARK = 0.0
 
 
 class PostType(Enum):
@@ -137,10 +158,10 @@ def calculate_weighted_score(
         "reply": ActionWeights.REPLY * p_reply,
         "repost": ActionWeights.REPOST * p_repost,
         "quote": ActionWeights.QUOTE * p_quote,
-        "like": ActionWeights.LIKE * p_like,
-        "video_view": ActionWeights.VIDEO_VIEW * p_video_view,
+        "favorite": ActionWeights.FAVORITE * p_like,
+        "vqv": ActionWeights.VQV * p_video_view,
         "photo_expand": ActionWeights.PHOTO_EXPAND * p_photo_expand,
-        "bookmark": ActionWeights.BOOKMARK * p_bookmark,
+        "bookmark (deprecated, not a real action)": ActionWeights.BOOKMARK * p_bookmark,
         "click": ActionWeights.CLICK * p_click,
         "profile_click": ActionWeights.PROFILE_CLICK * p_profile_click,
         "block": ActionWeights.BLOCK * p_block,
@@ -360,7 +381,7 @@ def analyze_negative_signals(text: str, post_type: PostType) -> tuple[int, float
         if re.search(pattern, text_lower):
             risk_score += penalty
             weaknesses.append(message)
-            suggestions.append("Remove inflammatory language — one block ≈ -1000 likes")
+            suggestions.append("Remove inflammatory language — negative actions (block/mute/report) renormalize the score into the suppressed bucket")
 
     # All-caps aggression
     caps_ratio = sum(1 for c in text if c.isupper()) / max(len(text), 1)
