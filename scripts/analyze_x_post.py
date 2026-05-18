@@ -641,9 +641,9 @@ def format_report(result: AnalysisResult, verbose: bool = True) -> str:
         p = result.probabilities
         lines.append(f"- P(reply): {p.p_reply:.1%} → contributes +{result.score_breakdown['reply']:.3f}")
         lines.append(f"- P(repost): {p.p_repost:.1%} → contributes +{result.score_breakdown['repost']:.3f}")
-        lines.append(f"- P(like): {p.p_like:.1%} → contributes +{result.score_breakdown['like']:.3f}")
+        lines.append(f"- P(favorite/like): {p.p_like:.1%} → contributes +{result.score_breakdown['favorite']:.3f}")
         if p.p_video_view > 0:
-            lines.append(f"- P(video_view): {p.p_video_view:.1%} → contributes +{result.score_breakdown['video_view']:.3f}")
+            lines.append(f"- P(vqv/video view): {p.p_video_view:.1%} → contributes +{result.score_breakdown['vqv']:.3f}")
         if p.p_photo_expand > 0:
             lines.append(f"- P(photo_expand): {p.p_photo_expand:.1%} → contributes +{result.score_breakdown['photo_expand']:.3f}")
         lines.append(f"- P(block): {p.p_block:.2%} → contributes {result.score_breakdown['block']:.3f}")
