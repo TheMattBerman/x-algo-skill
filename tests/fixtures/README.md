@@ -1,6 +1,7 @@
 # Fixtures
 
-These fixtures pin deterministic checks only.
+These fixtures pin the internal supplied-metadata check only
+(`scripts/check-metadata.mjs`). They are not a reach audit.
 
 | Fixture | Expected result | Reason |
 |---|---|---|
@@ -11,4 +12,6 @@ These fixtures pin deterministic checks only.
 | `bare-domain-link.json` | FLAG | A bare domain is an external URL. |
 | `tech-tokens.json` | PASS | Bare tech tokens such as `Node.js`, `Next.js`, and `vite.config.ts` are not URLs. |
 
-Run `node scripts/audit-post.mjs --self-test` from the repository root.
+```bash
+node scripts/check-metadata.mjs --self-test
+```
