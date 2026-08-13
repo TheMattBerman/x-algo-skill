@@ -6,11 +6,31 @@ Citations are relative to `xai-org/x-algorithm@a389166` and must trace to
 
 Eligibility only. No score, no verdict band, no reach prediction.
 
-## Door 1 — In-network (Thunder)
+## Door states
+
+Every door resolves to exactly one of three states. Fixed wording:
+
+- **OPEN** — every condition is determinable now and satisfied.
+- **CLOSED** — a condition is determinable now and failed. This is the actionable state.
+- **PENDING** — structurally eligible, but entry is gated on a post-publish signal. The line
+  **MUST** name the signal that unlocks it.
+
+Never render a PENDING door as OPEN. Never drop an unknowable gate to make a door render cleanly.
+
+| Door | Determinable at draft time | Gated on post-publish signal |
+|---|---|---|
+| 1 in-network | all (retention, reply/repost status) | none |
+| 2 cold start | original, followers <= 1000, views < 1000 | top-85% pool position (per request, unknowable) |
+| 3 Phoenix OON | reply/repost/community lockout | 1 like (1fav index), 32 likes (32fav) |
+| 4 SimClusters | none | 8 likes (persistent embedding) |
+| 5 video tail | has video, duration > 10,000 ms | none |
+| 6 kill switch | known labels/verdicts only; NEVER inferred | server-side labels are never visible |
+
+## Door 1 — Your followers (Thunder)
 
 Your followers.
 
-**Open by default** for originals that still sit inside Thunder's retention window.
+**Open by default.** Replies and reposts are still served in-network, at the 0.75 factor.
 
 Constraints:
 
@@ -31,65 +51,80 @@ Phoenix MoE are off by default
 keeps 50 (`home-mixer/params/config.rs:17`;
 `home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs:398`).
 
-## Door 2 — Cold-start force-slot
+## Door 2 — A bump while you're small (cold start)
 
 Deterministic lift to rank index 15 for one eligible post per request.
 
-**Open only if ALL of:**
+**Determinable now (must all hold, else CLOSED):**
 
 - not a reply
 - not a repost
 - author followers <= 1000 (`ColdStartFollowerCap`, `home-mixer/params/param.rs:638-643`)
 - views < 1000 (`ColdStartImpressionThreshold`, `:620-625`; checked at
   `home-mixer/scorers/author_cold_start.rs:179`)
-- the post already sits in the **top 85%** of the non-zero-scored pool
-  (`LowImpressionsMaxPositionRatio` 0.85 at `author_cold_start.rs:167-178`;
-  `param.rs:651-656`). Bottom-15% posts are **ineligible**.
+
+**PENDING when the above hold:** the post must already sit in the **top 85%** of the
+non-zero-scored pool (`LowImpressionsMaxPositionRatio` 0.85 at
+`author_cold_start.rs:167-178`; `param.rs:651-656`). That pool position is a
+**per-request runtime property** and is unknowable before publish. Bottom-15% posts are
+**ineligible**. Never silently drop this gate to render the door OPEN.
 
 Enabled by default (`EnableViewerColdStart = true`, `param.rs:658-663`). At shipped
 defaults `ColdStartSlotMin = 15` / `ColdStartSlotMax = 16` make
 `random_range(15..16)` a one-element range, so the target is deterministically rank
 index 15 (`author_cold_start.rs:130-138, 189`; `param.rs:626-637`).
 
-## Door 3 — Phoenix OON retrieval
+PENDING line must name the unlock: top-85% pool position (per request).
+
+## Door 3 — Strangers' For You (Phoenix retrieval)
 
 The main stranger path.
 
-**Hard-closed** for replies, reposts, and community posts
+**CLOSED** for replies, reposts, and community posts
 (`phoenix-rankall-strato/columns/phoenix_rank_all/phoenixRankAllCandidateProcessor.strato:441-446`).
 OON replies and reposts are also dropped pre-scoring
 (`home-mixer/filters/oon_retweet_reply_filter.rs:13-18`).
 
-Index entry gates for originals:
+**PENDING for originals** (structurally eligible; index writes are post-publish):
 
-- 1 like enters the 1fav index (`phoenixRankAllCandidateProcessor.strato:78-92`)
-- 32 likes enters the 32fav index (`:62-76`)
+- pending the first like → 1fav index (`phoenixRankAllCandidateProcessor.strato:78-92`)
+- pending 32 likes → 32fav index (`:62-76`)
 
 Text retention windows are 24h and 48h (`phoenix-rankall/src/config/mod.rs:139-156`).
 
-## Door 4 — SimClusters ANN
+PENDING lines must name the unlock signal (1 like / 32 likes).
 
-Needs a persistent embedding at 8 likes
+## Door 4 — People already into this (SimClusters)
+
+**PENDING** on 8 likes for a persistent embedding
 (`simclusters/simclusters_v2/summingbird/common/Configs.scala:65`;
 `simclusters/simclusters_v2/summingbird/storm/PersistentTweetJob.scala:23, 54`).
 ANN min score 0.5 (`home-mixer/sources/simclusters_source.rs:35`).
 8-hour half-life (`Configs.scala:39`) — the only real engagement half-life in the
 release.
 
-## Door 5 — Video long tail
+PENDING line must name the unlock: 8 likes (persistent embedding).
 
-Requires video.
+## Door 5 — Still findable next month (video long tail)
+
+Requires video. Determinable at draft time when duration is known; no post-publish signal.
 
 Retention: 48 / 96 / 168 / 336 / **720h**; evergreen video 5 years
 (`24 * 365 * 5` hours); evergreen Grok video 30 days
 (`phoenix-rankall/src/config/mod.rs:139-156`).
 
-VQV credit (weight 0.05) requires duration > 10,000 ms
+The 48h–720h video/nsfw_video windows are gated by `hasValidImmersiveVideo`: duration
+must be **strictly greater than** 10,000 ms (exactly 10,000 ms is also excluded)
+(`phoenix-rankall-strato/lib/eventProcessing.strato:24, 389-405`). That duration floor
+does **not** apply to the 5-year evergreen writers in the published code (media type
+only; the promotion job is not in the repo).
+
+Separately, VQV **weight** credit (weight 0.05) requires duration > 10,000 ms
 (`home-mixer/params/param.rs:677-682`; `home-mixer/util/candidates_util.rs:19-40`)
 and is zeroed for **viewers** over 10,000 followers, not authors
-(`candidates_util.rs:4, 25-29`).
+(`candidates_util.rs:4, 25-29`). Index gate and VQV weight credit are distinct mechanisms.
 
-## Door 6 — Visibility filtering (kill switch)
+## Door 6 — The kill switch (visibility filtering)
 
 Not a door you open. A labeled post can occupy a top-50 slot and then vanish; VF runs
 after selection (`phoenix_candidate_pipeline.rs:398-421`).
@@ -98,6 +133,10 @@ after selection (`phoenix_candidate_pipeline.rs:398-421`).
 - 26 additional drop-only rules run for viewers who do not follow you (`:138-170`)
 - Labels are set membership only: score, expiry, country, and holdback are discarded
   (`visibility-filtering/models/safety_labels.rs:21-28`)
+
+At draft time: OPEN unless a *known supplied* label/verdict applies (never infer).
+Server-side labels the kit cannot see remain unknowable — say so; do not invent PENDING
+as a diagnosis.
 
 Full OON-only drop list, NSFW rollup, URL landmine, and FOSNR in-network kills:
 [creator-cheat-sheet.md](creator-cheat-sheet.md).
