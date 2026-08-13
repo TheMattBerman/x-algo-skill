@@ -60,9 +60,12 @@ function line(x1, y1, x2, y2, opts = {}) {
   return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${opts.stroke || LINE}" stroke-width="${sw}"${dash}/>`;
 }
 
-function stateStyle(state) {
-  if (state === "OPEN" || state === "AFTER") return { sw: 2, dash: null };
-  if (state === "PENDING") return { sw: 1, dash: "5 3" };
+const BOX_TOP = 28;
+const CITE_GAP = 16; // baseline-to-baseline from last body line to first cite
+const CITE_LH = 16;
+const BOX_BOTTOM = 10;
+
+function stateStyle(_gate) {
   return { sw: 1, dash: null };
 }
 
@@ -92,11 +95,18 @@ function wrapAll(strings, maxChars) {
   return strings.flatMap((s) => wrap(s, maxChars));
 }
 
-function measure(bodyLines, citeLines) {
-  return 26 + bodyLines.length * LH + 8 + citeLines.length * 18 + 14;
+function measure(bodyLines, citeLines, colRows = 0) {
+  const rows = colRows + bodyLines.length;
+  let lastBaseline = BOX_TOP;
+  if (rows > 0) lastBaseline = BOX_TOP + (rows - 1) * LH;
+  if (citeLines.length) {
+    const citeStart = lastBaseline + CITE_GAP;
+    lastBaseline = citeStart + (citeLines.length - 1) * CITE_LH;
+  }
+  return lastBaseline + BOX_BOTTOM;
 }
 
-function titledBox(x, y, w, h, title, state, bodyLines, citeLines) {
+function titledBox(x, y, w, h, title, state, bodyLines, citeLines, opts = {}) {
   const st = stateStyle(state);
   const dash = st.dash ? ` stroke-dasharray="${st.dash}"` : "";
   let svg = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${LINE}" stroke-width="${st.sw}"${dash}/>`;
@@ -120,16 +130,27 @@ function titledBox(x, y, w, h, title, state, bodyLines, citeLines) {
     svg += text(sx, y + 5, stateStr, { fill: FG });
   }
 
-  let yy = y + 28;
+  let yy = y + BOX_TOP;
+  const leftLines = opts.leftLines || [];
+  const rightLines = opts.rightLines || [];
+  if (leftLines.length || rightLines.length) {
+    const n = Math.max(leftLines.length, rightLines.length);
+    const rightX = x + Math.floor(w / 2) + 4;
+    for (let i = 0; i < n; i++) {
+      if (leftLines[i]) svg += text(x + 14, yy, leftLines[i], { fill: FG });
+      if (rightLines[i]) svg += text(rightX, yy, rightLines[i], { fill: FG });
+      yy += LH;
+    }
+  }
   for (const ln of bodyLines) {
     svg += text(x + 14, yy, ln, { fill: FG });
     yy += LH;
   }
   if (citeLines.length) {
-    yy = y + h - 12 - (citeLines.length - 1) * 18;
+    yy = yy - LH + CITE_GAP;
     for (const ln of citeLines) {
       svg += text(x + 14, yy, ln, { fill: DIM, size: 12 });
-      yy += 18;
+      yy += CITE_LH;
     }
   }
   return svg;
@@ -184,7 +205,7 @@ function page1() {
   const doors = [
     {
       title: "your followers",
-      state: "OPEN",
+      state: "always on",
       items: [
         "thunder. open by default. replies and reposts still served, at 0.75",
         "50 most recent originals, 30 most recent replies",
@@ -194,7 +215,7 @@ function page1() {
     },
     {
       title: "a bump while you're small",
-      state: "PENDING",
+      state: "under 1k only",
       items: [
         "cold start. original only. not a reply or repost",
         "author followers <= 1000. views < 1000",
@@ -204,7 +225,7 @@ function page1() {
     },
     {
       title: "strangers' for you",
-      state: "PENDING",
+      state: "originals only",
       items: [
         "phoenix retrieval. hard-closed for replies, reposts, and community posts",
         {
@@ -220,7 +241,7 @@ function page1() {
     },
     {
       title: "people already into this",
-      state: "PENDING",
+      state: "8 likes",
       items: [
         "simclusters. pending 8 likes for a persistent embedding",
         "ann drops anything under 0.5",
@@ -230,11 +251,11 @@ function page1() {
     },
     {
       title: "still findable next month",
-      state: "OPEN",
+      state: "video > 10s",
       items: [
         "video long tail. requires video. text falls out of retrieval in 24 to 48 hours",
         "48 / 96 / 168 / 336 / 720h windows need duration strictly > 10,000 ms (exactly 10,000 ms is excluded)",
-        "evergreen video stays 5 years. published writers check media type only, not duration",
+        "evergreen video sits 5 years; those index writers check media type only, not duration",
         "VQV weight credit is a separate >10,000 ms gate",
       ],
       cites: [
@@ -246,7 +267,7 @@ function page1() {
 
   const kill = {
     title: "the kill switch",
-    state: "AFTER",
+    state: "runs last",
     items: [
       "visibility filtering. not a door you open",
       "28 rules run for everyone. 26 more run for people who do not follow you",
@@ -267,7 +288,7 @@ function page1() {
   parts.push(sectionRule(PAD, y, innerW, "FIVE WAYS IN"));
   y += 18;
   const flow = wrap(
-    "thunder → phoenix retrieval → phoenix topics → simclusters ann → TopKScoreSelector keeps 50",
+    "thunder → cold start → phoenix retrieval → simclusters → video long tail → TopKScoreSelector keeps 50",
     Math.floor(innerW / CW)
   );
   for (const ln of flow) {
@@ -340,30 +361,30 @@ function page2() {
     ["not dwelled", "-0.02", "param.rs:443-448"],
   ];
 
-  const actionW = 34;
+  const actionW = 31;
   const weightW = 7;
   const headerLine = padRow("action", "weight", "cite", actionW, weightW);
-  const posLines = positives.map((r) => padRow(r[0], r[1], r[2], actionW, weightW));
-  const penLines = penalties.map((r) => padRow(r[0], r[1], r[2], actionW, weightW));
-
-  const caveat = wrap(
-    "the weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). those weights multiply a predicted chance this viewer does the thing, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts. the weight on a report is 468x the weight on a like (-234.0 / 0.5) in weight space. a predicted report of 0.01 is not 468 likes. mute is priced worse than block.",
-    maxChars
-  );
+  const colChars = Math.max(24, Math.floor((innerW / 2 - 28) / CW));
+  const caveatText =
+    "the weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). those weights multiply a predicted chance this viewer does the thing, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts. the magnitude of the report weight is 468x the like weight (|-234.0| / 0.5). a predicted report of 0.01 is not 468 likes. mute is priced worse than block.";
+  const caveatCol = wrap(caveatText, colChars);
+  const posLines = [
+    "weights",
+    headerLine,
+    ...positives.map((r) => padRow(r[0], r[1], r[2], actionW, weightW)),
+  ];
+  const penLines = [
+    "penalties",
+    headerLine,
+    ...penalties.map((r) => padRow(r[0], r[1], r[2], actionW, weightW)),
+    "",
+    ...caveatCol,
+  ];
+  const colRows = Math.max(posLines.length, penLines.length);
   const caveatCite = wrapAll(
     ["home-mixer/params/param.rs:279-281, 282, 325-330, 442"],
     maxChars
   );
-
-  const tableLines = [
-    headerLine,
-    ...posLines,
-    "",
-    padRow("penalties", "weight", "cite", actionW, weightW),
-    ...penLines,
-    "",
-    ...caveat,
-  ];
 
   const parts = [];
   const head = header("WHAT X PAYS FOR", kicker);
@@ -373,9 +394,12 @@ function page2() {
   parts.push(sectionRule(PAD, y, innerW, "THE PRICE LIST"));
   y += 20;
 
-  const tableH = measure(tableLines, caveatCite);
+  const tableH = measure([], caveatCite, colRows);
   parts.push(
-    titledBox(PAD, y, innerW, tableH, "weights and penalties", null, tableLines, caveatCite)
+    titledBox(PAD, y, innerW, tableH, "weights and penalties", null, [], caveatCite, {
+      leftLines: posLines,
+      rightLines: penLines,
+    })
   );
   y += tableH + 22;
 
@@ -468,7 +492,7 @@ function page3() {
     {
       title: "5  make it video. longer than 10 seconds",
       items: [
-        "if it needs to live past tuesday: text drops out of retrieval in 24 to 48 hours. the 48 / 96 / 168 / 336 / 720h video windows require duration strictly > 10,000 ms. evergreen can sit 5 years; published evergreen writers check media type only. VQV weight credit is a separate >10,000 ms gate.",
+        "if it needs to live past tuesday: text drops out of retrieval in 24 to 48 hours. the 48 / 96 / 168 / 336 / 720h video windows require duration strictly > 10,000 ms. evergreen video sits 5 years; those index writers check media type only, not duration. VQV weight credit is a separate >10,000 ms gate.",
       ],
       cites: [
         "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:139-156",
@@ -478,9 +502,13 @@ function page3() {
     {
       title: "6  treat one bad label like it can close every stranger door",
       items: [
-        "28 rules run on everybody. 26 more run on people who do not follow you. a labeled post can take a top-50 slot and then vanish. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. pin a bad link and the account gets SPAM_HIGH_RECALL for 7 days.",
+        "28 rules run on everybody. 26 more run on people who do not follow you. a labeled post can take a top-50 slot and then vanish. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. pin a bad or low-quality url and the account gets SPAM_HIGH_RECALL for 7 days; that check re-runs on every follow you perform. OneWeekInSecs is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.",
       ],
-      cites: ["registry.rs:101-170 · rtf_tweets_on_unsafe_verdict.bot:17-27"],
+      cites: [
+        "registry.rs:101-170 · PinnedLowQualityOrBadUrl.bot:8-41",
+        "FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45",
+        "rtf_tweets_on_unsafe_verdict.bot:17-27",
+      ],
     },
   ];
 
