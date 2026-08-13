@@ -312,6 +312,18 @@ Scope footer as in Job 1.
 
 ---
 
+## Source evidence
+
+For campaign, launch, or niche-specific drafts, collect a reviewed public source packet first.
+Follow [the source evidence workflow](references/source-evidence.md). If TweetClaw is already
+available, use it only for read-only public collection. Keep drafting, scheduling, publishing,
+and every other write action outside that collection step.
+
+Source packets provide current context. They never change door eligibility, replace citations
+to the published code, or prove why a post received its observed reach.
+
+---
+
 ## Internal metadata check (not the taught interface)
 
 `scripts/check-metadata.mjs` is an internal supplied-metadata check for contributors. Do not
@@ -322,4 +334,4 @@ node "$CLAUDE_SKILL_DIR/scripts/check-metadata.mjs" --self-test
 ```
 
 Deterministic D-rules only. Judgment rules for draft text are owned by Job 1 above and defined
-in [references/rules.md](references/rules.md) — do not treat that file as skippable metadata.
+in [references/rules.md](references/rules.md). Do not treat that file as skippable metadata.

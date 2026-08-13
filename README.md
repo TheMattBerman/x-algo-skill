@@ -260,6 +260,11 @@ Restart the agent. Ask it to check which doors a draft can open, diagnose why a 
 
 Paste a draft for the primary path. No CLI flags required. No API keys.
 
+For campaign or niche-specific drafts, first build a small packet of public
+examples. The [source evidence workflow](references/source-evidence.md) records
+URLs, audience language, and claims to verify. It does not change a door state
+or replace evidence from the published code.
+
 ---
 
 ## honest limits
