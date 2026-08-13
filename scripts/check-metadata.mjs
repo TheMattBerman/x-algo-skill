@@ -34,7 +34,7 @@ function usage() {
   console.error(
     "usage: node check-metadata.mjs --text <draft> | --file <path> [--reply] [--repost] [--media photo|video|other] [--video-duration-ms <number>] [--known-oon-drop-label <label>] [--url-verdict unsafe] | --self-test",
   );
-  console.error("internal only: checks supplied metadata; does not audit a post or predict reach.");
+  console.error("not the taught interface: checks supplied metadata; does not audit a post or predict reach.");
 }
 
 function parse(argv) {
