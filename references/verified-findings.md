@@ -16,7 +16,7 @@ A mutually followed viewer receives the default `BidirectionalFollowReplyWeightB
 
 ## Discovery and structural rules
 
-- An original from an author with at most 1,000 followers and fewer than 1,000 views can receive the default-on cold-start lift to rank index 15, subject to published eligibility. Replies and reposts are excluded. Citations: `home-mixer/scorers/author_cold_start.rs:86-91, 130-189`; `home-mixer/params/param.rs:620-663`.
+- An original from an author with at most 1,000 followers and fewer than 1,000 views can receive the default-on cold-start lift to rank index 15, but only if it already sits in the **top 85%** of the non-zero-scored pool. Bottom-15% posts are ineligible. Replies and reposts are excluded. At shipped defaults the slot is deterministic (`random_range(15..16)`). Citations: `home-mixer/scorers/author_cold_start.rs:86-91, 130-189, 167-178`; `home-mixer/params/param.rs:620-663`.
 - First like, eighth like, and 32nd like are distinct indexing or embedding milestones. Citations: `phoenix-rankall-strato/columns/phoenix_rank_all/phoenixRankAllCandidateProcessor.strato:62-92`; `simclusters/simclusters_v2/summingbird/common/Configs.scala:65`; `simclusters/simclusters_v2/summingbird/storm/PersistentTweetJob.scala:23,54`.
 - Text retrieval windows are 24 or 48 hours. Video has windows up to 720 hours and evergreen video paths. Citation: `phoenix-rankall/src/config/mod.rs:139-156`.
 - Feed maximum age is 48 hours, with learned age-bucket features. There is no published ranking half-life. Citations: `home-mixer/params/config.rs:36`; `home-mixer/filters/age_filter.rs`; `phoenix/xrex/models/recsys_feature_prep.py`.
