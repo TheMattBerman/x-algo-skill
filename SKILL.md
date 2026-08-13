@@ -47,7 +47,9 @@ them). Ask only for uninferable facts that change a door, in a single batch:
   longer than 10 seconds, or at/under. Exactly 10 seconds is still out. Until that is answered,
   render door 5 **PENDING** on duration.
 - Does the account have <= 1000 followers? (door 2)
-- Any known visibility label or URL verdict already supplied by the user? (door 6) — never invent one
+- Has X sent a warning, restriction, or notice about this account or a link in the draft?
+  (door 6) — only if they actually report one. Never infer a label or URL verdict from the
+  post text or a domain.
 
 If a door does not depend on the answer, do not ask.
 
@@ -79,7 +81,9 @@ Receipt line (always emit, never a findings dump):
 - `Judgment: {flagged J-rule names}.`
 
 A flagged rule may also feed the chosen lever. Do not add a separate judgment section beyond
-that one line.
+that one line. If any J-rule flags, the CLEAR door-6 line still stays CLEAR (text never trips
+the kill switch) but **must** carry a pointer to that Judgment line so a six-door skim cannot
+read CLEAR as "nothing to fix."
 
 ### Door line templates
 
@@ -94,6 +98,7 @@ Doors 1–5:
 Door 6 (kill switch — never OPEN or CLOSED):
 
 - `CLEAR — The kill switch: no supplied label or URL verdict; VF is idle ({file:line})`
+- `CLEAR — The kill switch: no supplied label or URL verdict; VF is idle ({file:line}). See Judgment: {flagged J-rule names} (text only; does not trip this door).` — use this CLEAR form when a J-rule flagged; state remains CLEAR
 - `TRIPPED — The kill switch: {known supplied label or verdict} ({file:line})`
 
 Door labels: Your followers (Thunder) · A bump while you're small (cold start) · Strangers'
@@ -110,10 +115,14 @@ Doors are gated on follower count, like count, and media type. None of those mov
 so the doors readout alone cannot produce an edit. After the doors and the judgment pass, pick
 **the highest-ranked lever that actually applies**. Tiebreak order is the list order:
 
-1. **Reopen a closed door.** Structural, biggest move. Make it an original rather than a reply
-   (opens door 3). Take the clip clearly past 10 seconds (opens door 5 / `video` 48h–720h index
-   gate; `nsfw_video` is only 48h and 168h — `eventProcessing.strato:24, 389-405`;
-   `phoenix-rankall/src/config/mod.rs:146-152`).
+1. **Reopen a closed door.** Structural, biggest move. Only on conditions already true of this
+   draft: make it an original rather than a reply (opens door 3). **Media length/type applies
+   only when media is already in the draft and is the wrong length or type** — then take that
+   clip clearly past 10 seconds (opens door 5 / `video` 48h–720h index gate; `nsfw_video` is
+   only 48h and 168h — `eventProcessing.strato:24, 389-405`;
+   `phoenix-rankall/src/config/mod.rs:146-152`). Adding media that is not in the draft is not
+   a same-draft edit and must not be proposed as the one edit. Door 5 CLOSED for "no video"
+   is not a rung-1 reopen.
 2. **Remove kill-switch risk.** Protects door 6, which can silently void every other door.
    Link reputation, pinned-link exposure, anything a J-rule flags as bait that draws Grox
    scrutiny. Traction buys a more expensive inspection: deluxe pass at 64 likes, PTOS at 128
@@ -128,10 +137,10 @@ so the doors readout alone cannot produce an edit. After the doors and the judgm
    recent posts (`ranking_scorer.rs:614-616`; `dpp_model.rs:147-150`).
 
 **No edit is a first-class outcome.** If nothing in the ladder applies, do not manufacture an
-edit. Emit this wording (you may name the relevant counterfactuals in the second sentence, but
+edit. Emit this wording (second sentence lists costs that are **absent**, not actions to take;
 do not add a rewrite):
 
-`No edit: this draft is not leaving reach on the table. What would change that: posting it as a reply or repost (closes stranger doors), a clip at or under 10 seconds (closes the long video index), a J-rule bait close, news with no reusable takeaway, or a known visibility label.`
+`No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply or repost (would close stranger doors), a clip already in the draft at or under 10 seconds (would close the long video index), a J-rule bait close, news with no reusable takeaway, or a restriction notice from X.`
 
 One-edit sentence shapes (do not bend rung 1's template onto 3 or 4):
 
@@ -150,7 +159,8 @@ when the outcome is No edit.
 
 **Doors (abbrev.):** door 3 CLOSED (reply; `phoenixRankAllCandidateProcessor.strato:441-446`);
 door 2 CLOSED (reply); door 4 PENDING on 8 likes only after an original path exists; door 6
-OPEN (no supplied label) but J-ENGAGEMENT-BAIT flags the close.
+CLEAR (no supplied label) with pointer `See Judgment: J-ENGAGEMENT-BAIT` — bait does not trip
+the door.
 
 **Ladder:** rung 1 applies — make it an original. That reopens door 3 (and restores cold-start
 eligibility on door 2 if followers ≤ 1000). Rung 2 would also strip the bait, but a reopened
@@ -173,9 +183,10 @@ takeaway. Stop. Do not staple `param.rs:325-330` onto generic copy advice.
 
 **Judgment:** none flagged.
 
-**No edit:** this draft is not leaving reach on the table. What would change that: posting it
-as a reply or repost (closes stranger doors), a clip at or under 10 seconds (closes the long
-video index), a J-rule bait close, news with no reusable takeaway, or a known visibility label.
+**No edit:** this draft is not leaving reach on the table. None of what would have cost you
+reach is present: a reply or repost (would close stranger doors), a clip already in the draft
+at or under 10 seconds (would close the long video index), a J-rule bait close, news with no
+reusable takeaway, or a restriction notice from X.
 
 ### Door evaluation quick rules
 
@@ -192,7 +203,8 @@ Use [references/doors.md](references/doors.md). Summary:
   **>** 10 seconds (`eventProcessing.strato:24, 389-405`; `config/mod.rs:146-150`). `nsfw_video`
   has only 48h and 168h (`config/mod.rs:151-152`). VQV weight credit separately (`param.rs:677-682`).
 - **Door 6 VF kill switch:** **CLEAR** unless a *known supplied* label/verdict applies (then
-  **TRIPPED**); never infer from text. Never render as OPEN.
+  **TRIPPED**); never infer from text. Never render as OPEN. A J-rule flag may append
+  `See Judgment:` on a CLEAR line; that does not trip the door.
 
 Accuracy guards: weight-framed claims only ("the weight on a copy-link share is 40x the weight on a like"); rare-event caveat (`param.rs:279-281`) in the same paragraph as any weight-ratio claim; mutual-follow +15 is a reply-term boost (5→20), not a post-level 4x; diversity is per request/refresh, never per day.
 
@@ -212,7 +224,8 @@ from the post; ask the rest in a single batch, including:
 - Is this a reply or a repost? (do not infer from tone)
 - About how many seconds was the video, if any? (seconds, not ms; same 10-second boundary
   rule as Job 1)
-- Follower count vs 1000, and any known visibility label or URL verdict
+- Follower count vs 1000, and whether X has sent a warning, restriction, or notice about the
+  account or a link (never infer a label or URL verdict from text or a domain)
 - What they observed (who saw it, impressions, timing)
 
 Output:
@@ -242,27 +255,28 @@ Lead with this, then stop burying it:
 
 `I can't see whether X labeled you. What I can do is name which published kill-switch produces exactly the way your reach died.`
 
-Then a **capped** differential. Rank the six branches below by fit with the symptoms they
-reported. Emit:
+Then a **capped** differential. Rank: (1) follower-vs-stranger split they
+described; (2) published duration/expiry vs their timeline; (3) unmentioned required
+trigger (pinned URL, NSFW history) ranks lower; (4) contradiction last or out — e.g. FOSNR
+(also kills in-network) if followers still see them. Emit:
 
 1. The lead line above (first, always).
-2. **Top 3 branches** by symptom fit. Each: name, what they would observe if that were the
+2. **Top 3 branches** by that rubric. Each: name, what they would observe if that were the
    cause, cite. Do not claim a diagnosis is confirmed.
 3. **The rest, one collapsed line:** `Also on the board, lower fit: {names of remaining branches}.`
 4. Scope footer as in Job 1.
 
-Do not walk all six. A user asking this at 11pm will not read them.
+Do not walk all six.
 
 Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet.md)):
 
-1. **NSFW 3-of-last-5 rollup** — Observe: strangers vanish for ~7 days after a cluster of NSFW
-   labels; followers may still see you. 3 of last 5 posts labeled `NSFW_HIGH_PRECISION` within
-   60 days → account label 7 days; `highPageRankOrGreyBadge: false` so credibility does not
-   exempt (`safety-label-user-agg/postToUserLabelRules.strato:396-426`).
+1. **NSFW 3-of-last-5 rollup** — Observe: strangers vanish ~7 days after an NSFW cluster;
+   followers may still see you. 3 of last 5 `NSFW_HIGH_PRECISION` in 60 days → account label
+   7 days; `highPageRankOrGreyBadge: false` (`safety-label-user-agg/postToUserLabelRules.strato:396-426`).
 2. **Retroactive URL verdict** — Observe: old posts with that URL die together when the verdict
    flips (cap 5,000). UNSAFE applies four OON-drop labels (`rtf_tweets_on_unsafe_verdict.bot:17-27`).
-3. **Pinned-post trap** — Observe: account-level stranger drop while the pin stays bad; re-triggers
-   when you follow anyone. Pin BAD/LOW_QUALITY URL → account `SPAM_HIGH_RECALL` 7 days
+3. **Pinned-post trap** — Observe: account-level stranger drop while the pin stays bad;
+   re-triggers on follow. Pin BAD/LOW_QUALITY URL → account `SPAM_HIGH_RECALL` 7 days
    (`PinnedLowQualityOrBadUrl.bot:8-41`; `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`).
    `OneWeekInSecs` is a botmaker DSL builtin not defined in the repo; 7 days is implied by the
    constant name.
@@ -270,10 +284,10 @@ Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet
    the post. `FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`,
    `FOSNR_CIVIC_INTEGRITY` (insults-level FOSNR is OON-only).
 5. **`DoNotAmplifyNonFollowerRule`** — Observe: followers still see you; strangers do not.
-   This is a **rule**, not a safety label. Rule name `"DoNotAmplifyNonFollowerRule"`, account
-   label `LabelValue::DO_NOT_AMPLIFY`, `require_non_follower = true`
-   (`user_label_drops.rs:113-119`). Pair with `ABUSIVE_HIGH_RECALL_USER_DROP` (`:101-106`).
-   Adjacent `NSFW_NEAR_PERFECT_USER_DROP` ships `require_non_follower = false` (`:107-112`).
+   A **rule**, not a safety label. `"DoNotAmplifyNonFollowerRule"`, account label
+   `LabelValue::DO_NOT_AMPLIFY`, `require_non_follower = true` (`user_label_drops.rs:113-119`).
+   Pair with `ABUSIVE_HIGH_RECALL_USER_DROP` (`:101-106`). Adjacent
+   `NSFW_NEAR_PERFECT_USER_DROP` ships `false` (`:107-112`).
 6. **Other of the 26 OON-only drops** — Observe: same follower-only pattern without the pinned-URL
    or NSFW-rollup timeline. Full list in the cheat sheet (`registry.rs:141-166`).
 

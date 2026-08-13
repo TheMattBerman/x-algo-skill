@@ -140,6 +140,8 @@ after selection (`phoenix_candidate_pipeline.rs:398-421`).
 At draft time: **CLEAR** unless a *known supplied* label/verdict applies (**TRIPPED**).
 Never infer. Never render this as OPEN — it is not a door you open. Server-side labels
 the kit cannot see remain unknowable — say so; do not invent PENDING as a diagnosis.
+A Job 1 J-rule flag may append `See Judgment: …` on a CLEAR line. That is a pointer, not
+a state change.
 
 Full OON-only drop list, NSFW rollup, URL landmine, and FOSNR in-network kills:
 [creator-cheat-sheet.md](creator-cheat-sheet.md).

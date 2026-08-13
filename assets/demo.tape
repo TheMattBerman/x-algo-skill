@@ -41,9 +41,11 @@ Type "OPEN — Your followers (Thunder): in-network by default"
 Enter
 Type "  (thunder/config.rs:5-6; config.rs:36)"
 Enter
-Type "OPEN — The kill switch (visibility filtering): no supplied label"
+Type "CLEAR — The kill switch: no supplied label or URL verdict; VF is idle"
 Enter
-Type "  (registry.rs:101-170)"
+Type "  (registry.rs:101-170). See Judgment: J-ENGAGEMENT-BAIT"
+Enter
+Type "  (text only; does not trip this door)."
 Enter
 Type ""
 Enter

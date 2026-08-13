@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.2] - 2026-08-13
+
+Second-test polish on `v3-reach-check`. No kit restructure. Manufactured-edit and Job 3 lead stay as in 3.0.1.
+
+### Fixed
+
+- Rung 1 length/type edit applies only when media is already in the draft; adding absent media is not a same-draft edit.
+- Job 3 ranks branches with an ordered fit rubric (split, timeline, unmentioned trigger, contradiction).
+- Door 6 ask is poster-facing (warning/restriction/notice); labels and URL verdicts are still never inferred from text or a domain.
+- CLEAR kill-switch line carries a Judgment pointer when a J-rule flags; state stays CLEAR.
+- No-edit second sentence lists absent reach costs, not actions to take.
+
 ## [3.0.1] - 2026-08-13
 
 Usability + citation round on `v3-reach-check`. No kit restructure.
