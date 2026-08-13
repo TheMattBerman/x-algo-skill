@@ -33,7 +33,9 @@ X Reach Check. Eligibility over prediction.
 - Six-door eligibility model (`references/doors.md`) with **OPEN / CLOSED / PENDING** states; PENDING lines name the post-publish unlock (top-85% pool, 1/32 likes, 8 likes).
 - Job 1 judgment pass + four-rung lever ladder (`references/rules.md`) so "the one edit" is derived, not improvised; worked before/after example in `SKILL.md`.
 - Skill rename to `x-reach`; Job 1 happy path is a pasted draft with no CLI flags.
+- Kit floor files: `VERSION` (`3.0.0`), `install.sh` (idempotent `x-reach` symlink; removes stale v2 `x-algo-audit` when it points here), `AGENTS.md`, `doctor.sh`. No `.env.example` — this kit has no env vars.
 - Doors diagram hero asset (`assets/doors-diagram.svg`).
+- Re-recorded `assets/demo.gif` as a Job 1 session (bait-close edit + no-edit outcome), not the internal metadata script.
 - Expanded kill-switch / discovery-gates cheat sheet (26 OON-only drops, 1/8/32 gates, Thunder caps, video 720h/5y tail with corrected index vs VQV scoping, Grox traction scrutiny, held-back section, URL + pinned-post trap).
 - Nine self-test fixtures, including FAIL paths (`unsafe-verdict`, `known-label`) and a short-video FLAG.
 
