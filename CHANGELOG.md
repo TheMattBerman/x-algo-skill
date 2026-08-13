@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1] - 2026-08-13
+
+Usability + citation round on `v3-reach-check`. No kit restructure.
+
+### Fixed
+
+- Rung 3 is a nameable reuse-gap trigger, not a catch-all; No-edit is a first-class Job 1 outcome.
+- Job 2 asks reply-vs-original in one batch; video duration asked in seconds with a 10s-boundary rule.
+- Judgment emits a one-line receipt; kill switch states are CLEAR / TRIPPED.
+- Job 3 leads with the unknown-label line, then top 3 branches, then a collapsed remainder.
+- Citation corrections: two-file BAD/LOW_QUALITY URL ladder; redirect-chain `:9`; `require_non_follower` on two rules only; `DO_NOT_AMPLIFY_NON_FOLLOWER` is a rule not a label; tweet_label_drops base vs OON split; `nsfw_video` 48h/168h only; Agatha either-direction follow edges.
+
 ## [3.0.0] - 2026-08-13
 
 X Reach Check. Eligibility over prediction.

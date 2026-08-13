@@ -8,12 +8,14 @@ Eligibility only. No score, no verdict band, no reach prediction.
 
 ## Door states
 
-Every door resolves to exactly one of three states. Fixed wording:
+Every door 1–5 resolves to exactly one of three states. Fixed wording:
 
 - **OPEN** — every condition is determinable now and satisfied.
 - **CLOSED** — a condition is determinable now and failed. This is the actionable state.
 - **PENDING** — structurally eligible, but entry is gated on a post-publish signal. The line
   **MUST** name the signal that unlocks it.
+
+Door 6 (kill switch) is not a door you open. Fixed wording: **CLEAR** or **TRIPPED**. Never OPEN.
 
 Never render a PENDING door as OPEN. Never drop an unknowable gate to make a door render cleanly.
 
@@ -24,7 +26,7 @@ Never render a PENDING door as OPEN. Never drop an unknowable gate to make a doo
 | 3 Phoenix OON | reply/repost/community lockout | 1 like (1fav index), 32 likes (32fav) |
 | 4 SimClusters | none | 8 likes (persistent embedding) |
 | 5 video tail | has video, duration > 10,000 ms | none |
-| 6 kill switch | known labels/verdicts only; NEVER inferred | server-side labels are never visible |
+| 6 kill switch | known labels/verdicts only; NEVER inferred | server-side labels are never visible. States: **CLEAR** / **TRIPPED**, never OPEN |
 
 ## Door 1 — Your followers (Thunder)
 
@@ -109,15 +111,16 @@ PENDING line must name the unlock: 8 likes (persistent embedding).
 
 Requires video. Determinable at draft time when duration is known; no post-publish signal.
 
-Retention: 48 / 96 / 168 / 336 / **720h**; evergreen video 5 years
-(`24 * 365 * 5` hours); evergreen Grok video 30 days
+Retention: `video` 48 / 96 / 168 / 336 / **720h**; `nsfw_video` **48h and 168h only**;
+evergreen video 5 years (`24 * 365 * 5` hours); evergreen Grok video 30 days
 (`phoenix-rankall/src/config/mod.rs:139-156`).
 
-The 48h–720h video/nsfw_video windows are gated by `hasValidImmersiveVideo`: duration
-must be **strictly greater than** 10,000 ms (exactly 10,000 ms is also excluded)
+The `video` 48h–720h and `nsfw_video` 48h/168h windows are gated by `hasValidImmersiveVideo`:
+duration must be **strictly greater than** 10,000 ms (exactly 10,000 ms is also excluded)
 (`phoenix-rankall-strato/lib/eventProcessing.strato:24, 389-405`). That duration floor
 does **not** apply to the 5-year evergreen writers in the published code (media type
-only; the promotion job is not in the repo).
+only; the promotion job is not in the repo). Do not merge `nsfw_video` into the 96/336/720h
+set (`config/mod.rs:151-152`).
 
 Separately, VQV **weight** credit (weight 0.05) requires duration > 10,000 ms
 (`home-mixer/params/param.rs:677-682`; `home-mixer/util/candidates_util.rs:19-40`)
@@ -134,9 +137,9 @@ after selection (`phoenix_candidate_pipeline.rs:398-421`).
 - Labels are set membership only: score, expiry, country, and holdback are discarded
   (`visibility-filtering/models/safety_labels.rs:21-28`)
 
-At draft time: OPEN unless a *known supplied* label/verdict applies (never infer).
-Server-side labels the kit cannot see remain unknowable — say so; do not invent PENDING
-as a diagnosis.
+At draft time: **CLEAR** unless a *known supplied* label/verdict applies (**TRIPPED**).
+Never infer. Never render this as OPEN — it is not a door you open. Server-side labels
+the kit cannot see remain unknowable — say so; do not invent PENDING as a diagnosis.
 
 Full OON-only drop list, NSFW rollup, URL landmine, and FOSNR in-network kills:
 [creator-cheat-sheet.md](creator-cheat-sheet.md).

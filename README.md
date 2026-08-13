@@ -24,7 +24,7 @@ Citations: `xai-org/x-algorithm@a389166`.
    Your second post in the same person's refresh starts a third weaker (keeps 62.5%). Your third keeps 43.75%. Keep stacking and it floors at 0.25. This is per request, per person, inside one refresh. Three posts in a day, in different scrolls, do not trigger it. Three posts into one scroll do. (`home-mixer/scorers/ranking_scorer.rs:614-616`; `home-mixer/params/param.rs:222-239`)
 
 5. **If it needs to live past Tuesday, make it video. Longer than 10 seconds.**
-   Text drops out of retrieval in 24 to 48 hours. Video stays retrievable for 48 / 96 / 168 / 336 / 720 hours when duration is **strictly greater than** 10,000 ms — exactly 10,000 ms is also out (`phoenix-rankall-strato/lib/eventProcessing.strato:24, 389-405`). That duration floor gates the `video` / `nsfw_video` windows only. Evergreen video can stay 5 years; the published evergreen writers check media type only (no duration test), and the job that promotes a post to evergreen is not in the repo (`phoenix-rankall/src/config/mod.rs:139-156`). Separately, VQV **weight** credit also requires duration > 10,000 ms (`home-mixer/params/param.rs:677-682`) — weight credit, not the index gate.
+   Text drops out of retrieval in 24 to 48 hours. `video` stays retrievable for 48 / 96 / 168 / 336 / 720 hours when duration is **strictly greater than** 10,000 ms — exactly 10,000 ms is also out (`phoenix-rankall-strato/lib/eventProcessing.strato:24, 389-405`). `nsfw_video` has only two windows: 48h and 168h (`phoenix-rankall/src/config/mod.rs:151-152`). That duration floor gates those indexes only. Evergreen video can stay 5 years; the published evergreen writers check media type only (no duration test), and the job that promotes a post to evergreen is not in the repo (`phoenix-rankall/src/config/mod.rs:139-156`). Separately, VQV **weight** credit also requires duration > 10,000 ms (`home-mixer/params/param.rs:677-682`) — weight credit, not the index gate.
 
 6. **Treat one bad label like it can close every stranger door.**
    28 rules run on everybody. 26 more run on people who do not follow you. A labeled post can take a top-50 slot and then vanish (`visibility-filtering/rules/registry.rs:101-170`). An UNSAFE URL writes four drop labels at once, and a verdict change relabels old posts (`botmaker-rules/scarecrow/bot/rtf_tweets_on_unsafe_verdict.bot:17-27`). Pin a BAD or LOW_QUALITY link and the account gets `SPAM_HIGH_RECALL` for 7 days (`PinnedLowQualityOrBadUrl.bot:8-41`); the same check re-runs on every follow you perform (`FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`). `OneWeekInSecs` is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.
@@ -111,4 +111,4 @@ Paste a draft for the primary path. No CLI flags required.
 
 ---
 
-X Reach Check v3.0.0 · corrected against `xai-org/x-algorithm@a389166`
+X Reach Check v3.0.1 · corrected against `xai-org/x-algorithm@a389166`

@@ -40,7 +40,12 @@ Infer what you can from the draft (link presence, obvious reply markers if the U
 them). Ask only for uninferable facts that change a door, in a single batch:
 
 - Is this a reply or a repost? (doors 2, 3, 4 eligibility; door 1 haircut)
-- Video duration in ms, if media is video? (door 5 index gate / VQV)
+- About how many seconds is the video, if media is video? (door 5 index gate / VQV) — ask in
+  seconds, never in milliseconds. Convert internally (`seconds * 1000`). The published gate is
+  strict `>` 10,000 ms (`eventProcessing.strato:24, 389-405`). If they say "about 10 seconds" or
+  anything in 9–11s without a clear over/under, do not guess: ask once whether it is clearly
+  longer than 10 seconds, or at/under. Exactly 10 seconds is still out. Until that is answered,
+  render door 5 **PENDING** on duration.
 - Does the account have <= 1000 followers? (door 2)
 - Any known visibility label or URL verdict already supplied by the user? (door 6) — never invent one
 
@@ -48,14 +53,16 @@ If a door does not depend on the answer, do not ask.
 
 ### Output order (fixed)
 
-1. **The doors.** All six, one line each, **OPEN / CLOSED / PENDING**, with reason and
-   `file:line`. **Closed first**, then pending, then open. A PENDING line MUST name the
+1. **The doors.** All six, one line each. Doors 1–5 use **OPEN / CLOSED / PENDING**. Door 6
+   (kill switch) uses **CLEAR / TRIPPED** — never OPEN; it is not a door anyone opens. Closed
+   and tripped first, then pending, then open, then clear. A PENDING line MUST name the
    post-publish signal that unlocks it (see [references/doors.md](references/doors.md) § Door states).
-2. **The one edit.** Derive it with the lever ladder below (judgment pass is required first).
-   Single highest-leverage change and which door it opens or protects. Not a list. Never
-   improvise outside the ladder.
-3. **The rewrite.** Draft edited with the change marked (or omit if no lever applies).
-4. **Scope footer** (exactly one line, at the bottom):
+2. **Judgment.** Exactly one line — the receipt that the required pass ran. Never omit it.
+   Never expand it into findings.
+3. **The one edit** or **No edit.** Derive with the lever ladder below. Single highest-leverage
+   change, or the fixed No-edit outcome. Not a list. Never improvise outside the ladder.
+4. **The rewrite.** Draft edited with the change marked. **Omit** when the outcome is No edit.
+5. **Scope footer** (exactly one line, at the bottom):
 
 `This reads the code they published, not the live knobs they can turn on you tomorrow.`
 
@@ -64,16 +71,30 @@ If a door does not depend on the answer, do not ask.
 Run the four judgment rules in [references/rules.md](references/rules.md) against the draft
 **TEXT**: `J-ENGAGEMENT-BAIT`, `J-REPLY-BAIT`, `J-NEGATIVE-FEEDBACK-RISK`, `J-DUPLICATE-RISK`.
 These are the only machinery in the kit that reads the draft. They are part of Job 1's main
-path — not an appendix, not optional, and not limited to the internal script section. Surface
-a flagged rule only when it feeds the chosen lever; do not invent a fifth output section.
+path — not an appendix, not optional, and not limited to the internal script section.
+
+Receipt line (always emit, never a findings dump):
+
+- `Judgment: none flagged.`
+- `Judgment: {flagged J-rule names}.`
+
+A flagged rule may also feed the chosen lever. Do not add a separate judgment section beyond
+that one line.
 
 ### Door line templates
 
 Use the Grok door labels. Keep citations intact.
 
+Doors 1–5:
+
 - `CLOSED — {label}: {reason} ({file:line})`
 - `PENDING — {label}: eligible, pending {signal that unlocks it} ({file:line})`
 - `OPEN — {label}: {reason} ({file:line})`
+
+Door 6 (kill switch — never OPEN or CLOSED):
+
+- `CLEAR — The kill switch: no supplied label or URL verdict; VF is idle ({file:line})`
+- `TRIPPED — The kill switch: {known supplied label or verdict} ({file:line})`
 
 Door labels: Your followers (Thunder) · A bump while you're small (cold start) · Strangers'
 For You (Phoenix retrieval) · People already into this (SimClusters) · Still findable next
@@ -90,25 +111,37 @@ so the doors readout alone cannot produce an edit. After the doors and the judgm
 **the highest-ranked lever that actually applies**. Tiebreak order is the list order:
 
 1. **Reopen a closed door.** Structural, biggest move. Make it an original rather than a reply
-   (opens door 3). Take the clip past 10,000 ms (opens door 5 / 48h–720h index gate via
-   `eventProcessing.strato:24, 389-405`).
+   (opens door 3). Take the clip clearly past 10 seconds (opens door 5 / `video` 48h–720h index
+   gate; `nsfw_video` is only 48h and 168h — `eventProcessing.strato:24, 389-405`;
+   `phoenix-rankall/src/config/mod.rs:146-152`).
 2. **Remove kill-switch risk.** Protects door 6, which can silently void every other door.
    Link reputation, pinned-link exposure, anything a J-rule flags as bait that draws Grox
    scrutiny. Traction buys a more expensive inspection: deluxe pass at 64 likes, PTOS at 128
    (`grox/config/config.py:112`, `grox/flows/ptos/constants.py:25`).
-3. **Design for the heaviest weights inside an open door.** Copy-link (20.0) and follow (4.0)
-   carry the most weight (`param.rs:325-330, 345-350`). Weight-framed only; rare-event caveat
-   in the same breath when stating ratios (`param.rs:279-281`). This is a rewrite lever, not a
-   structural one.
+3. **Nameable reuse gap — not "make it sharper."** Fires ONLY when the draft states news or a
+   fact with no takeaway a third party could reuse: there is no reason for anyone to send it to
+   someone else. Then, and only then, rewrite toward a reusable takeaway, weight-framed to
+   copy-link (20.0) and follow (4.0) (`param.rs:325-330, 345-350`) with the rare-event caveat
+   in the same breath (`param.rs:279-281`). If the draft already has a reusable takeaway, this
+   rung does **not** apply. Do not fire it to tighten copy, punch up a hook, or fill the slot.
 4. **Avoid a modifier penalty.** Same-refresh stacking, near-duplicate format against your own
    recent posts (`ranking_scorer.rs:614-616`; `dpp_model.rs:147-150`).
 
-**If nothing in the ladder applies, say so plainly.** Do not manufacture an edit to fill the slot.
+**No edit is a first-class outcome.** If nothing in the ladder applies, do not manufacture an
+edit. Emit this wording (you may name the relevant counterfactuals in the second sentence, but
+do not add a rewrite):
 
-One-edit sentence shape: `The one edit: {change}. Opens / protects {door}.`
+`No edit: this draft is not leaving reach on the table. What would change that: posting it as a reply or repost (closes stranger doors), a clip at or under 10 seconds (closes the long video index), a J-rule bait close, news with no reusable takeaway, or a known visibility label.`
+
+One-edit sentence shapes (do not bend rung 1's template onto 3 or 4):
+
+- Rungs 1–2: `The one edit: {change}. Opens / protects {door}.`
+- Rung 3: `The one edit: {change}. Raises the odds inside {already-open or pending door}; it does not open a door.`
+- Rung 4: `The one edit: {change}. Avoids a modifier penalty inside doors that are already open or pending.`
 
 Rewrite markup: strike the removed phrase with `~~like this~~` and bold the replacement
-`**like this**`. Show the full rewritten draft under a `### Rewrite` heading.
+`**like this**`. Show the full rewritten draft under a `### Rewrite` heading. Omit `### Rewrite`
+when the outcome is No edit.
 
 ### Worked example (ladder → one edit)
 
@@ -130,6 +163,20 @@ You (Phoenix retrieval).
 blows up~~` with a concrete claim someone would **copy-link** to a friend (rung 3 is available
 only after rung 1 is done — do not stack a second "one edit").
 
+### Worked example (no edit)
+
+**Draft:** a clean original with a reusable takeaway. No video, not a reply, no bait, no
+risky link, no same-refresh stack.
+
+**Ladder:** rungs 1, 2, 4 find nothing. Rung 3 does not fire — the draft is not news-with-no-
+takeaway. Stop. Do not staple `param.rs:325-330` onto generic copy advice.
+
+**Judgment:** none flagged.
+
+**No edit:** this draft is not leaving reach on the table. What would change that: posting it
+as a reply or repost (closes stranger doors), a clip at or under 10 seconds (closes the long
+video index), a J-rule bait close, news with no reusable takeaway, or a known visibility label.
+
 ### Door evaluation quick rules
 
 Use [references/doors.md](references/doors.md). Summary:
@@ -141,9 +188,11 @@ Use [references/doors.md](references/doors.md). Summary:
 - **Door 3 Phoenix OON:** CLOSED for reply/repost/community; originals **PENDING** on 1 like
   (1fav `:78-92`) and 32 likes (32fav `:62-76`).
 - **Door 4 SimClusters:** **PENDING** on 8 likes for persistent embedding (`Configs.scala:65`).
-- **Door 5 Video tail:** CLOSED without video; 48h–720h index needs duration >10000 ms
-  (`eventProcessing.strato:24, 389-405`); VQV weight credit separately (`param.rs:677-682`).
-- **Door 6 VF kill switch:** OPEN unless a *known supplied* label/verdict applies; never infer from text.
+- **Door 5 Video tail:** CLOSED without video. `video` index: 48/96/168/336/720h when duration
+  **>** 10 seconds (`eventProcessing.strato:24, 389-405`; `config/mod.rs:146-150`). `nsfw_video`
+  has only 48h and 168h (`config/mod.rs:151-152`). VQV weight credit separately (`param.rs:677-682`).
+- **Door 6 VF kill switch:** **CLEAR** unless a *known supplied* label/verdict applies (then
+  **TRIPPED**); never infer from text. Never render as OPEN.
 
 Accuracy guards: weight-framed claims only ("the weight on a copy-link share is 40x the weight on a like"); rare-event caveat (`param.rs:279-281`) in the same paragraph as any weight-ratio claim; mutual-follow +15 is a reply-term boost (5→20), not a post-level 4x; diversity is per request/refresh, never per day.
 
@@ -155,9 +204,20 @@ Same doors model, retrospective.
 
 Input: the post plus whatever the user observed (impressions, who saw it, timing).
 
+### Facts you may need (ask in ONE batch)
+
+Same askable facts as Job 1 — Job 2's symptom table depends on them. Infer what you can
+from the post; ask the rest in a single batch, including:
+
+- Is this a reply or a repost? (do not infer from tone)
+- About how many seconds was the video, if any? (seconds, not ms; same 10-second boundary
+  rule as Job 1)
+- Follower count vs 1000, and any known visibility label or URL verdict
+- What they observed (who saw it, impressions, timing)
+
 Output:
 
-1. Closed / pending doors ranked by fit with the symptom (followers-only → door 3/4/6; zero
+1. Closed / pending / tripped doors ranked by fit with the symptom (followers-only → door 3/4/6; zero
    impressions → door 1 retention / age gate / diversity burst; etc.).
 2. Name what cannot be determined from the outside (server-side labels, unpublished `P(action)`,
    experiment arm, per-request top-85% pool position) rather than guessing.
@@ -166,23 +226,32 @@ Output:
 Symptom → door mapping (start here, then cite):
 
 - Almost only followers saw it → door 3 CLOSED (reply/repost/community) or still PENDING on
-  first/32nd like; or door 6 OON drop.
+  first/32nd like; or door 6 TRIPPED (OON drop).
 - Never left your own network and you are under 1k → door 2 may have been PENDING on top-85%
   and lost the slot.
 - Died after early likes → check door 4's 8-like embedding + 8h half-life; door 6 if a label
   landed after publish.
-- Video vanished after ~2 days → door 5 CLOSED (no video / sub-10s for 48h–720h windows).
+- Video vanished after ~2 days → door 5 CLOSED (no video / at-or-under 10s for `video`
+  48h–720h windows; `nsfw_video` is 48h and 168h only).
 
 ---
 
 ## Job 3 — Am I shadowbanned
 
-I can't see whether X labeled you. What I can do is name which published kill-switch produces
-exactly the way your reach died.
+Lead with this, then stop burying it:
 
-Then deliver a differential diagnosis. Symptom pattern narrows to branches below. Each branch
-states what the user would observe if that were the cause. Cite. Do not claim a diagnosis is
-confirmed.
+`I can't see whether X labeled you. What I can do is name which published kill-switch produces exactly the way your reach died.`
+
+Then a **capped** differential. Rank the six branches below by fit with the symptoms they
+reported. Emit:
+
+1. The lead line above (first, always).
+2. **Top 3 branches** by symptom fit. Each: name, what they would observe if that were the
+   cause, cite. Do not claim a diagnosis is confirmed.
+3. **The rest, one collapsed line:** `Also on the board, lower fit: {names of remaining branches}.`
+4. Scope footer as in Job 1.
+
+Do not walk all six. A user asking this at 11pm will not read them.
 
 Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet.md)):
 
@@ -200,12 +269,13 @@ Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet
 4. **Four FOSNR labels that also kill in-network** — Observe: followers and strangers both lose
    the post. `FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`,
    `FOSNR_CIVIC_INTEGRITY` (insults-level FOSNR is OON-only).
-5. **`DO_NOT_AMPLIFY_NON_FOLLOWER`** — Observe: followers still see you; strangers do not
-   (`user_label_drops.rs:101-119`).
+5. **`DoNotAmplifyNonFollowerRule`** — Observe: followers still see you; strangers do not.
+   This is a **rule**, not a safety label. Rule name `"DoNotAmplifyNonFollowerRule"`, account
+   label `LabelValue::DO_NOT_AMPLIFY`, `require_non_follower = true`
+   (`user_label_drops.rs:113-119`). Pair with `ABUSIVE_HIGH_RECALL_USER_DROP` (`:101-106`).
+   Adjacent `NSFW_NEAR_PERFECT_USER_DROP` ships `require_non_follower = false` (`:107-112`).
 6. **Other of the 26 OON-only drops** — Observe: same follower-only pattern without the pinned-URL
    or NSFW-rollup timeline. Full list in the cheat sheet (`registry.rs:141-166`).
-
-Scope footer as in Job 1.
 
 ---
 

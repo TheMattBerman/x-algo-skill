@@ -254,12 +254,13 @@ function page1() {
       state: "video > 10s",
       items: [
         "video long tail. requires video. text falls out of retrieval in 24 to 48 hours",
-        "48 / 96 / 168 / 336 / 720h windows need duration strictly > 10,000 ms (exactly 10,000 ms is excluded)",
+        "video windows: 48 / 96 / 168 / 336 / 720h need duration strictly > 10,000 ms (exactly 10,000 ms is excluded)",
+        "nsfw_video windows are only 48h and 168h (same duration gate; not the 96/336/720h set)",
         "evergreen video sits 5 years; those index writers check media type only, not duration",
         "VQV weight credit is a separate >10,000 ms gate",
       ],
       cites: [
-        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:139-156",
+        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:146-156",
         "param.rs:677-682",
       ],
     },
@@ -492,22 +493,24 @@ function page3() {
     {
       title: "5  make it video. longer than 10 seconds",
       items: [
-        "if it needs to live past tuesday: text drops out of retrieval in 24 to 48 hours. the 48 / 96 / 168 / 336 / 720h video windows require duration strictly > 10,000 ms. evergreen video sits 5 years; those index writers check media type only, not duration. VQV weight credit is a separate >10,000 ms gate.",
+        "if it needs to live past tuesday: text drops out of retrieval in 24 to 48 hours. video windows 48 / 96 / 168 / 336 / 720h require duration strictly > 10,000 ms. nsfw_video is only 48h and 168h. evergreen video sits 5 years; those index writers check media type only, not duration. VQV weight credit is a separate >10,000 ms gate.",
       ],
       cites: [
-        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:139-156",
+        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:146-156",
         "param.rs:677-682",
       ],
     },
     {
       title: "6  treat one bad label like it can close every stranger door",
       items: [
-        "28 rules run on everybody. 26 more run on people who do not follow you. a labeled post can take a top-50 slot and then vanish. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. pin a bad or low-quality url and the account gets SPAM_HIGH_RECALL for 7 days; that check re-runs on every follow you perform. OneWeekInSecs is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.",
+        "28 rules run on everybody. 26 more run on people who do not follow you. a labeled post can take a top-50 slot and then vanish. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. BAD url (gate: chain MATCHES .*BAD) applies SPAM or SPAM_HIGH_RECALL; LOW_QUALITY is a separate rule — any hop in the redirect chain applies SPAM_HIGH_RECALL. pin a bad or low-quality url and the account gets SPAM_HIGH_RECALL for 7 days; that check re-runs on every follow you perform. OneWeekInSecs is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.",
       ],
       cites: [
         "registry.rs:101-170 · PinnedLowQualityOrBadUrl.bot:8-41",
         "FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45",
         "rtf_tweets_on_unsafe_verdict.bot:17-27",
+        "Tweet_Spam_High_Recall_RTF_All_Bad_URL_Sources.bot:7,40-46",
+        "LQ_Tweets_With_LQ_URL_Verdict_At_Mention_To_NonFollower_v2.bot:9,16",
       ],
     },
   ];

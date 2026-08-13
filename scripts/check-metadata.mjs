@@ -26,7 +26,6 @@ const OON_DROP_LABELS = new Set([
   "NSFW_BANNER_IMAGE",
   "ABUSIVE_HIGH_RECALL",
   "NSFW_NEAR_PERFECT",
-  "DO_NOT_AMPLIFY_NON_FOLLOWER",
 ]);
 const URL_RE =
   /\b(?:(?:https?:\/\/|www\.)[^\s<>()]+|(?:[a-z0-9-]+\.)+(?:com|org|net|edu|gov|mil|int|io|co|ai|app|dev|tech|info|biz|me|us|uk|ca|au|de|fr|jp|in|xyz|online|site|store|blog|cloud|agency|digital)(?:\/[^\s<>()]*)?\b)/i;
