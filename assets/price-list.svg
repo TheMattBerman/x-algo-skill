@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">What X actually pays for</title>
+  <desc id="desc">A dark code-editor-style card showing published default action weights and negative feedback weights.</desc>
+  <rect width="1200" height="630" fill="#0d1117"/>
+  <rect x="45" y="38" width="1110" height="554" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+  <path d="M45 100h1110" stroke="#30363d" stroke-width="2"/>
+  <circle cx="77" cy="69" r="8" fill="#ff5f57"/><circle cx="103" cy="69" r="8" fill="#febc2e"/><circle cx="129" cy="69" r="8" fill="#28c840"/>
+  <text x="170" y="76" fill="#8b949e" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="18">x-algorithm / price-list.rs</text>
+  <text x="82" y="151" fill="#c9d1d9" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="34" font-weight="700">what X actually pays for</text>
+  <text x="82" y="195" fill="#8b949e" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="17">published default action weights</text>
+  <line x1="600" y1="225" x2="600" y2="486" stroke="#30363d" stroke-width="2"/>
+  <text x="82" y="250" fill="#7ee787" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="19" font-weight="700">// positive ladder</text>
+  <text x="630" y="250" fill="#ff7b72" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="19" font-weight="700">// penalty side</text>
+  <g font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="22">
+    <text x="82" y="299" fill="#79c0ff">copy-link share</text><text x="540" y="299" fill="#d2a8ff" text-anchor="end">20.0</text>
+    <text x="82" y="339" fill="#79c0ff">reply</text><text x="540" y="339" fill="#d2a8ff" text-anchor="end">5.0</text>
+    <text x="82" y="379" fill="#79c0ff">follow</text><text x="540" y="379" fill="#d2a8ff" text-anchor="end">4.0</text>
+    <text x="82" y="419" fill="#79c0ff">repost</text><text x="540" y="419" fill="#d2a8ff" text-anchor="end">1.0</text>
+    <text x="82" y="459" fill="#79c0ff">like</text><text x="540" y="459" fill="#d2a8ff" text-anchor="end">0.5</text>
+    <text x="630" y="299" fill="#ffa198">report</text><text x="1085" y="299" fill="#ff7b72" text-anchor="end">-234.0</text>
+    <text x="630" y="339" fill="#ffa198">mute</text><text x="1085" y="339" fill="#ff7b72" text-anchor="end">-58.8</text>
+    <text x="630" y="379" fill="#ffa198">not interested</text><text x="1085" y="379" fill="#ff7b72" text-anchor="end">-43.2</text>
+    <text x="630" y="419" fill="#ffa198">block</text><text x="1085" y="419" fill="#ff7b72" text-anchor="end">-31.2</text>
+  </g>
+  <path d="M82 510h1036" stroke="#30363d" stroke-width="2"/>
+  <text x="82" y="553" fill="#c9d1d9" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="18">defaults mirrored from production. the code weighs one report as heavily as 468 likes.</text>
+</svg>
