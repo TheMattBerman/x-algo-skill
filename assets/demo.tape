@@ -51,17 +51,17 @@ Type "Judgment: J-ENGAGEMENT-BAIT flags the close (grox/flows/ptos/state.py:24-7
 Enter
 Type ""
 Enter
-Type "The one edit: Drop the bait close; write the tip so someone would"
+Type "The one edit: Drop the bait close. Protects The kill switch"
 Enter
-Type "  copy-link it. Protects The kill switch (visibility filtering)."
+Type "  (visibility filtering). (Ladder rung 2; no closed door to reopen.)"
 Enter
 Type ""
 Enter
 Type "### Rewrite"
 Enter
-Type "~~Like if you agree and tag 3 friends —~~ **Ship the tip your"
+Type "~~Like if you agree and tag 3 friends —~~ this tip will change"
 Enter
-Type "teammate would paste into Slack:** this tip will change how you ship."
+Type "how you ship."
 Enter
 Type ""
 Enter
