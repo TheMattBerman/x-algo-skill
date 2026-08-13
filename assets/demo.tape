@@ -7,12 +7,12 @@ Set Height 700
 Set Theme "Dracula"
 Set TypingSpeed 35ms
 
-Type `node scripts/audit-post.mjs --text "just shipped this. grab it at github.com/themattberman/x-algo-skill"`
+Type `# Job 1: paste a draft into /x-reach (no CLI flags)`
 Enter
-Sleep 5s
+Sleep 2s
 Type "clear"
 Enter
 Sleep 1s
-Type "node scripts/audit-post.mjs --self-test"
+Type "node scripts/check-metadata.mjs --self-test"
 Enter
 Sleep 5s
