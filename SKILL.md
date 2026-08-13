@@ -51,17 +51,21 @@ If a door does not depend on the answer, do not ask.
 1. **The doors.** All six, one line each, **OPEN / CLOSED / PENDING**, with reason and
    `file:line`. **Closed first**, then pending, then open. A PENDING line MUST name the
    post-publish signal that unlocks it (see [references/doors.md](references/doors.md) § Door states).
-2. **Judgment pass (required).** Run the four judgment rules in
-   [references/rules.md](references/rules.md) against the draft **TEXT**:
-   `J-ENGAGEMENT-BAIT`, `J-REPLY-BAIT`, `J-NEGATIVE-FEEDBACK-RISK`, `J-DUPLICATE-RISK`.
-   These are the only machinery in the kit that reads the draft. They are part of Job 1's
-   main path — not an appendix, not optional, and not limited to the internal script section.
-3. **The one edit.** Derive it with the lever ladder below. Single highest-leverage change
-   and which door it opens or protects. Not a list. Never improvise outside the ladder.
-4. **The rewrite.** Draft edited with the change marked (or omit if no lever applies).
-5. **Scope footer** (exactly one line, at the bottom):
+2. **The one edit.** Derive it with the lever ladder below (judgment pass is required first).
+   Single highest-leverage change and which door it opens or protects. Not a list. Never
+   improvise outside the ladder.
+3. **The rewrite.** Draft edited with the change marked (or omit if no lever applies).
+4. **Scope footer** (exactly one line, at the bottom):
 
 `This reads the code they published, not the live knobs they can turn on you tomorrow.`
+
+### Judgment pass (required, between doors and the one edit)
+
+Run the four judgment rules in [references/rules.md](references/rules.md) against the draft
+**TEXT**: `J-ENGAGEMENT-BAIT`, `J-REPLY-BAIT`, `J-NEGATIVE-FEEDBACK-RISK`, `J-DUPLICATE-RISK`.
+These are the only machinery in the kit that reads the draft. They are part of Job 1's main
+path — not an appendix, not optional, and not limited to the internal script section. Surface
+a flagged rule only when it feeds the chosen lever; do not invent a fifth output section.
 
 ### Door line templates
 

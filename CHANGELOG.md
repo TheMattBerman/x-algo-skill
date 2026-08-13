@@ -6,17 +6,20 @@ X Reach Check. Eligibility over prediction.
 
 ### Added
 
-- Six-door eligibility model (`references/doors.md`) shared by four jobs: make this get seen, why it died, shadowban differential, thin recent-post pattern read.
+- Six-door eligibility model (`references/doors.md`) with **OPEN / CLOSED / PENDING** states; PENDING lines name the post-publish unlock (top-85% pool, 1/32 likes, 8 likes).
+- Job 1 judgment pass + four-rung lever ladder (`references/rules.md`) so "the one edit" is derived, not improvised; worked before/after example in `SKILL.md`.
 - Skill rename to `x-reach`; Job 1 happy path is a pasted draft with no CLI flags.
 - Doors diagram hero asset (`assets/doors-diagram.svg`).
-- Expanded kill-switch / discovery-gates cheat sheet (26 OON-only drops, 1/8/32 gates, Thunder caps, video 720h/5y tail, Grox traction scrutiny, held-back section, URL + pinned-post trap).
+- Expanded kill-switch / discovery-gates cheat sheet (26 OON-only drops, 1/8/32 gates, Thunder caps, video 720h/5y tail with corrected index vs VQV scoping, Grox traction scrutiny, held-back section, URL + pinned-post trap).
+- Nine self-test fixtures, including FAIL paths (`unsafe-verdict`, `known-label`) and a short-video FLAG.
 
 ### Changed
 
-- README sells doors → behavior changes → price/penalty tables → held-back → install (install last).
+- README sells doors → behavior changes → price/penalty tables → held-back → install (install last); Grok copy filled; v2 upgrade note to `rm ~/.claude/skills/x-algo-audit`.
 - Internal metadata script renamed to `scripts/check-metadata.mjs`; README no longer teaches CLI flags as the interface.
-- Cold-start copy corrected to top-85% eligibility (bottom-15% ineligible).
+- Cold-start copy corrected to top-85% eligibility (bottom-15% ineligible); door 2 never silently drops the pool gate.
 - Weight claims are weight-framed only, with `param.rs:279-281` rare-event caveat alongside ratios.
+- 48h–720h video index duration floor cited to `eventProcessing.strato:24, 389-405`; VQV weight credit kept distinct at `param.rs:677-682`.
 
 ### Removed
 
@@ -24,10 +27,6 @@ X Reach Check. Eligibility over prediction.
 - `references/pipeline.md` (creator-relevant lines folded into doors)
 - `D-MEDIA-PRESENCE` (always-PASS non-check)
 - Score / verdict-band / reach-prediction framing from the taught path
-
-### Fixed
-
-- Changelog and self-test copy: there are **six** fixtures, not five.
 
 ## [2.0.0] - 2026-08-13
 

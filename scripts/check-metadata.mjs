@@ -201,6 +201,9 @@ function selfTest() {
     ["link-heavy.json", "FLAG"],
     ["bare-domain-link.json", "FLAG"],
     ["tech-tokens.json", "PASS"],
+    ["unsafe-verdict.json", "FAIL"],
+    ["known-label.json", "FAIL"],
+    ["short-video.json", "FLAG"],
   ];
   let ok = true;
   for (const [file, expected] of fixtures) {
@@ -211,7 +214,7 @@ function selfTest() {
     ok &&= pass;
     console.log(`${pass ? "PASS" : "FAIL"} ${file}: expected ${expected}, got ${got}`);
   }
-  console.log(ok ? "SELF-TEST PASS: 6 fixtures calibrated." : "SELF-TEST FAIL: fixture expectation mismatch.");
+  console.log(ok ? "SELF-TEST PASS: 9 fixtures calibrated." : "SELF-TEST FAIL: fixture expectation mismatch.");
   process.exit(ok ? 0 : 1);
 }
 

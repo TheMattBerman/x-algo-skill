@@ -1,18 +1,74 @@
 Output assets/demo.gif
 
 Set Shell "zsh"
-Set FontSize 20
+Set FontSize 16
 Set Width 1200
-Set Height 700
+Set Height 720
 Set Theme "Dracula"
-Set TypingSpeed 35ms
+Set TypingSpeed 12ms
+Set PlaybackSpeed 1.2
 
-Type `# Job 1: paste a draft into /x-reach (no CLI flags)`
+Type "# /x-reach — Job 1 (pasted draft, no CLI)"
 Enter
-Sleep 2s
+Sleep 800ms
 Type "clear"
 Enter
-Sleep 1s
-Type "node scripts/check-metadata.mjs --self-test"
+Sleep 400ms
+
+Type "cat <<'EOF'"
 Enter
-Sleep 5s
+Type "Draft: Like if you agree and tag 3 friends — this tip will change how you ship."
+Enter
+Type ""
+Enter
+Type "CLOSED — Still findable next month (video long tail): no video"
+Enter
+Type "  (phoenix-rankall/src/config/mod.rs:139-156)"
+Enter
+Type "PENDING — A bump while you're small (cold start): eligible, pending"
+Enter
+Type "  top-85% pool position per request (author_cold_start.rs:167-178)"
+Enter
+Type "PENDING — Strangers' For You (Phoenix retrieval): eligible, pending"
+Enter
+Type "  first like → 1fav (:78-92); 32 likes → 32fav (:62-76)"
+Enter
+Type "PENDING — People already into this (SimClusters): eligible, pending"
+Enter
+Type "  8 likes for persistent embedding (Configs.scala:65)"
+Enter
+Type "OPEN — Your followers (Thunder): in-network by default"
+Enter
+Type "  (thunder/config.rs:5-6; config.rs:36)"
+Enter
+Type "OPEN — The kill switch (visibility filtering): no supplied label"
+Enter
+Type "  (registry.rs:101-170)"
+Enter
+Type ""
+Enter
+Type "Judgment: J-ENGAGEMENT-BAIT flags the close (grox/flows/ptos/state.py:24-70)."
+Enter
+Type ""
+Enter
+Type "The one edit: Drop the bait close; write the tip so someone would"
+Enter
+Type "  copy-link it. Protects The kill switch (visibility filtering)."
+Enter
+Type ""
+Enter
+Type "### Rewrite"
+Enter
+Type "~~Like if you agree and tag 3 friends —~~ **Ship the tip your"
+Enter
+Type "teammate would paste into Slack:** this tip will change how you ship."
+Enter
+Type ""
+Enter
+Type "This reads the code they published, not the live knobs they can"
+Enter
+Type "turn on you tomorrow."
+Enter
+Type "EOF"
+Enter
+Sleep 4s

@@ -45,6 +45,8 @@ Citation: `home-mixer/params/param.rs:317,677-682`;
 
 ## JUDGMENT
 
+Used by **Job 1** (required pass over draft TEXT before the one edit). See SKILL.md lever ladder.
+
 - **J-ENGAGEMENT-BAIT:** Judge apparent manufactured or traded engagement. Named policy types exist; rubric withheld. Citation: `grox/flows/ptos/state.py:24-70`.
 - **J-REPLY-BAIT:** Judge repetitive, low-substance reply calls. A 0.97 LLM threshold exists but cannot be computed here. Citation: `botmaker-rules/scarecrow/bot/GroxTweetProcessor.bot:8,24-29`.
 - **J-NEGATIVE-FEEDBACK-RISK:** Judge likely report, mute, not-interested, or block risk. Predicted viewer-action weights, not historical counts. Citation: `home-mixer/params/param.rs:424-448`; `home-mixer/scorers/ranking_scorer.rs:496-533`.
