@@ -35,3 +35,6 @@ Thumbs.db
 # Test coverage
 .coverage
 htmlcov/
+.env
+*.pem
+*.key
