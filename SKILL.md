@@ -266,13 +266,30 @@ silently. Print only the one-edit sentence or the No-edit outcome, never the wal
 rungs.
 
 1. **Reopen a closed door.** Structural, biggest move. Only on conditions already true of this
-   draft: make it an original rather than a reply (opens door 3). **Media length/type applies
-   only when media is already in the draft and is the wrong length or type**, then take that
-   clip clearly past 10 seconds (opens door 5 / `video` 48h–720h index gate; `nsfw_video` is
-   only 48h and 168h, `eventProcessing.strato:24, 389-405`;
-   `phoenix-rankall/src/config/mod.rs:146-152`). Adding media that is not in the draft is not
-   a same-draft edit and must not be proposed as the one edit. Door 5 CLOSED for "no video"
-   is not a rung-1 reopen.
+   draft: make it an original rather than a reply (opens door 3). **Before converting a
+   reply, test whether the draft is self-contained:** would it still make sense with no
+   parent post? It is **not** self-contained if it opens by agreeing or reacting ("Great
+   breakdown", "This", "So true"), refers to "the part / this point / that section", uses a
+   pronoun whose referent is in the parent, or is a fragment that only reads as a response.
+
+   - **Self-contained reply** (the point stands alone): convert to an original and rewrite
+     accordingly, same as today.
+   - **Context-dependent reply** (the draft leans on the parent): rung 1 still applies,
+     because the stranger door is the biggest lever. Do not ship the reply text relabelled
+     as an original. The edit must say that posting it verbatim will not work, and that the
+     standalone version has to carry the point on its own. The rewrite must then be an
+     actual standalone post making the same point. If the point is too thin to stand alone,
+     say that plainly instead of shipping an orphan: this one stays a reply and does not
+     reach strangers. That is still `The one edit:`, not the No-edit outcome (No-edit is
+     only for drafts that are not leaving reach on the table). Omit the rewrite when the
+     point is too thin.
+
+   **Media length/type applies only when media is already in the draft and is the wrong
+   length or type**, then take that clip clearly past 10 seconds (opens door 5 / `video`
+   48h–720h index gate; `nsfw_video` is only 48h and 168h,
+   `eventProcessing.strato:24, 389-405`; `phoenix-rankall/src/config/mod.rs:146-152`).
+   Adding media that is not in the draft is not a same-draft edit and must not be proposed
+   as the one edit. Door 5 CLOSED for "no video" is not a rung-1 reopen.
 2. **Remove kill-switch risk.** Protects door 6, which can silently void every other door.
    Link reputation, pinned-link exposure, anything a J-rule flags as bait that draws Grox
    scrutiny. Traction buys a more expensive inspection: deluxe pass at 64 likes, PTOS at 128
@@ -294,13 +311,18 @@ do not add a rewrite):
 
 One-edit sentence shapes (do not bend rung 1's template onto 3 or 4):
 
-- Rungs 1–2: `The one edit: {change}. Opens / protects {door}.`
+- Rung 1 self-contained reply, and rung 2: `The one edit: {change}. Opens / protects {door}.`
+- Rung 1 context-dependent reply: `The one edit: {change}. Opens {door}; posting the reply as-is will not.`
+- Rung 1 context-dependent, point too thin: `The one edit: Leave this a reply. The point does not stand on its own, so it will not reach strangers.`
 - Rung 3: `The one edit: {change}. Raises the odds inside {already-open or pending door}; it does not open a door.`
 - Rung 4: `The one edit: {change}. Avoids a modifier penalty inside doors that are already open or pending.`
 
 Rewrite: no strikethrough, no bold markers. Those render as literal `~~` and `**` in a
 terminal. Use a one-line `Rewrite:` naming what changed, then the full paste-ready draft.
-Omit the rewrite block when the outcome is No edit.
+Omit the rewrite block when the outcome is No edit, or when rung 1's honest outcome is
+leave-this-a-reply (point too thin). For a context-dependent reply that can stand alone,
+the paste-ready draft must carry the point with no parent post. Relabelling the reply is
+not a rewrite.
 
 ```
 Rewrite: {what changed}
@@ -367,6 +389,62 @@ This reads the code they published, not the live knobs they can turn on you tomo
 
 Do not stack a second "one edit." After rung 1, the bait closer is gone because the rewrite
 is the original-post form of this draft, not a second lever.
+
+### Worked example (context-dependent reply)
+
+**Draft:** `Great breakdown. The part about retrieval indexes is what most people miss.`
+Confirmed as a reply.
+
+Internal only (do not print): not self-contained (opens by agreeing; "the part" refers to
+the parent). Rung 1 still applies. Do not emit `Post this as an original, not a reply.`
+with the reply text relabelled. Do not print this paragraph.
+
+Print this (doors first, no preface; doors match any bait-free reply):
+
+```
+CLOSED   Strangers' For You (Phoenix retrieval)
+         Replies never get filed where strangers can find them.
+         Not a slower path, no path.
+         (phoenixRankAllCandidateProcessor.strato:441-446)
+
+CLOSED   A bump while you're small (cold start)
+         Replies do not qualify. This one is for original posts only.
+         (author_cold_start.rs:86-91)
+
+CLOSED   Still findable next month (video long tail)
+         No video, so there is nothing to keep.
+         Text drops out of circulation in a day or two.
+         (eventProcessing.strato:24, 389-405)
+
+PENDING  People already into this (SimClusters)
+         Needs 8 likes before X builds a lasting picture of who this
+         post is for.
+         (Configs.scala:65)
+
+OPEN     Your followers (Thunder)
+         Goes to your followers, but at three quarters the weight
+         because it is a reply.
+         (param.rs:246-265)
+
+CLEAR    The kill switch
+         Nothing you told me trips it. I cannot check this one myself:
+         X keeps these flags on their side, so it only shows up here
+         if you already got a warning.
+         (registry.rs:101-170)
+
+Judgment: none flagged.
+
+The one edit: Post this as an original that states the point on its own. Opens Strangers' For You (Phoenix retrieval); posting the reply as-is will not.
+
+Rewrite: posted as an original; the point now stands without the parent post.
+
+Retrieval indexes are how a post gets filed so people who never followed you can still find it. Most write the breakdown and stop there. The index is what actually decides whether strangers ever see the work.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.
+```
+
+A rewrite that still says "the part" of a post that no longer exists is the defect this
+example forbids.
 
 ### Worked example (no edit)
 

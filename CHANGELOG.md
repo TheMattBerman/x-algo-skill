@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.5] - 2026-08-13
+
+Rung 1 self-contained test on `v3-output-polish`. Spec and copy only. No gate, citation,
+state, or ordering changes.
+
+### Fixed
+
+- Rung 1 still converts a reply to an original, but only after testing whether the draft
+  is self-contained. A context-dependent reply gets a distinct one-edit sentence and a
+  standalone rewrite, not the reply text relabelled. A point too thin to stand alone stays
+  a reply; that is not the No-edit outcome.
+
 ## [3.0.4] - 2026-08-13
 
 Honesty pass on `v3-output-polish` from a blind usability test. Copy and spec only. Door
