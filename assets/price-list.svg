@@ -23,5 +23,5 @@
     <text x="630" y="419" fill="#ffa198">block</text><text x="1085" y="419" fill="#ff7b72" text-anchor="end">-31.2</text>
   </g>
   <path d="M82 510h1036" stroke="#30363d" stroke-width="2"/>
-  <text x="82" y="553" fill="#c9d1d9" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="18">defaults mirrored from production. the code weighs one report as heavily as 468 likes.</text>
+  <text x="82" y="553" fill="#c9d1d9" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="16">weight space only: report −234 / like 0.5 = 468×. negatives are large because rare (param.rs:279-281).</text>
 </svg>

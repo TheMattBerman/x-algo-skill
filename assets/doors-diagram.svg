@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">X Reach Check - six doors</title>
+  <desc id="desc">Five doors plus a kill switch: OPEN, CLOSED, or PENDING. Thunder, cold start, Phoenix OON, SimClusters, video long tail, visibility filtering.</desc>
+  <rect width="1200" height="630" fill="#0d1117"/>
+  <rect x="40" y="36" width="1120" height="558" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+  <text x="72" y="82" fill="#c9d1d9" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="26" font-weight="700">five doors + kill switch</text>
+  <text x="72" y="112" fill="#8b949e" font-family="SFMono-Regular, Consolas, Liberation Mono, monospace" font-size="14">OPEN · CLOSED · PENDING (name the unlock) | xai-org/x-algorithm@a389166</text>
+
+  <g font-family="SFMono-Regular, Consolas, Liberation Mono, monospace">
+    <rect x="72" y="140" width="330" height="180" rx="10" fill="#0d1117" stroke="#3fb950" stroke-width="2"/>
+    <text x="92" y="172" fill="#3fb950" font-size="13">DOOR 1 · OPEN by default</text>
+    <text x="92" y="206" fill="#c9d1d9" font-size="18" font-weight="700">Your followers</text>
+    <text x="92" y="232" fill="#8b949e" font-size="14">(Thunder)</text>
+    <text x="92" y="268" fill="#8b949e" font-size="13">50/30 caps · replies at 0.75</text>
+    <text x="92" y="294" fill="#8b949e" font-size="11">thunder/config.rs · param.rs:246-265</text>
+
+    <rect x="435" y="140" width="330" height="180" rx="10" fill="#0d1117" stroke="#d29922" stroke-width="2"/>
+    <text x="455" y="172" fill="#d29922" font-size="13">DOOR 2 · PENDING top-85%</text>
+    <text x="455" y="206" fill="#c9d1d9" font-size="18" font-weight="700">A bump while you're small</text>
+    <text x="455" y="232" fill="#8b949e" font-size="14">(cold start)</text>
+    <text x="455" y="268" fill="#8b949e" font-size="13">&lt;=1k · views&lt;1k · idx 15</text>
+    <text x="455" y="294" fill="#8b949e" font-size="11">author_cold_start.rs:86-189</text>
+
+    <rect x="798" y="140" width="330" height="180" rx="10" fill="#0d1117" stroke="#d29922" stroke-width="2"/>
+    <text x="818" y="172" fill="#d29922" font-size="13">DOOR 3 · PENDING 1 / 32 likes</text>
+    <text x="818" y="206" fill="#c9d1d9" font-size="18" font-weight="700">Strangers' For You</text>
+    <text x="818" y="232" fill="#8b949e" font-size="14">(Phoenix retrieval)</text>
+    <text x="818" y="268" fill="#8b949e" font-size="13">1fav :78-92 · 32fav :62-76</text>
+    <text x="818" y="294" fill="#8b949e" font-size="11">phoenixRankAllCandidateProcessor</text>
+
+    <rect x="72" y="350" width="330" height="180" rx="10" fill="#0d1117" stroke="#d29922" stroke-width="2"/>
+    <text x="92" y="382" fill="#d29922" font-size="13">DOOR 4 · PENDING 8 likes</text>
+    <text x="92" y="416" fill="#c9d1d9" font-size="18" font-weight="700">People already into this</text>
+    <text x="92" y="442" fill="#8b949e" font-size="14">(SimClusters)</text>
+    <text x="92" y="478" fill="#8b949e" font-size="13">embedding · min 0.5 · 8h half-life</text>
+    <text x="92" y="504" fill="#8b949e" font-size="11">Configs.scala:39,65</text>
+
+    <rect x="435" y="350" width="330" height="180" rx="10" fill="#0d1117" stroke="#ffa657" stroke-width="2"/>
+    <text x="455" y="382" fill="#ffa657" font-size="13">DOOR 5 · OPEN if video &gt;10s</text>
+    <text x="455" y="416" fill="#c9d1d9" font-size="18" font-weight="700">Still findable next month</text>
+    <text x="455" y="442" fill="#8b949e" font-size="14">(video long tail)</text>
+    <text x="455" y="478" fill="#8b949e" font-size="13">48–720h index · evergreen separate</text>
+    <text x="455" y="504" fill="#8b949e" font-size="11">eventProcessing.strato:24,389-405</text>
+
+    <rect x="798" y="350" width="330" height="180" rx="10" fill="#0d1117" stroke="#ff7b72" stroke-width="2"/>
+    <text x="818" y="382" fill="#ff7b72" font-size="13">DOOR 6 · kill switch</text>
+    <text x="818" y="416" fill="#c9d1d9" font-size="18" font-weight="700">The kill switch</text>
+    <text x="818" y="442" fill="#8b949e" font-size="14">(visibility filtering)</text>
+    <text x="818" y="478" fill="#8b949e" font-size="13">not a door you open · 28+26</text>
+    <text x="818" y="504" fill="#8b949e" font-size="11">registry.rs:101-170</text>
+  </g>
+</svg>

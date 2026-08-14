@@ -1,26 +1,30 @@
-# X algorithm cheat sheet
+# Discovery gates, kill switches, and shadowban surface
+
+Canonical creator reference for Jobs 1–3. Every number is a `file:line` in
+[github.com/xai-org/x-algorithm](https://github.com/xai-org/x-algorithm) @ `a389166`.
+Doors model: [doors.md](doors.md). Full arbitration: [verified-findings.md](verified-findings.md).
 
 Stop optimizing for likes. The ranking code does not.
 
-Analysis of [github.com/xai-org/x-algorithm](https://github.com/xai-org/x-algorithm) @ `a389166`. Every number is a `file:line` in that commit.
-
 ## six things to change
 
-1. **write originals.** replies, reposts, and community posts never enter the out-of-network index. a reply under a big account cannot grow you. `phoenixRankAllCandidateProcessor.strato:441-446`
+1. **Write the post someone would copy and send.** the weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). follow weight is 8x like weight (4.0 / 0.5). each weight multiplies an unpublished predicted probability; the file comment says the sizes reflect rarity as well as value (`param.rs:279-281`). `param.rs:282, 325-330, 345-350`
 
-2. **space posts across scrolls.** your second post landing in the same scroll starts a third weaker (keeps 62.5%). your third keeps 43.75%. per refresh, not per day. `ranking_scorer.rs:614-649` · `param.rs:222-239`
+2. **Write originals that a mutual would actually reply to.** on originals shown to mutuals, reply weight jumps 5 → 20. reply term only, not the whole post. replies and reposts get none of it. `param.rs:284-289` · `ranking_scorer.rs:180-193`
 
-3. **write for copy-link and follow.** X's code weighs one copy-link share as heavily as 40 likes, and one follow as heavily as 8 likes. likes sit at 0.5. make the post someone saves and sends. `param.rs:282, 325-330, 345-350`
+3. **If you want strangers, post an original.** replies, reposts, and community posts never enter the out-of-network index. OON replies drop pre-scoring. even followers see a reply or repost at 0.75. `phoenixRankAllCandidateProcessor.strato:441-446` · `oon_retweet_reply_filter.rs:13-18` · `param.rs:246-265`
 
-4. **under 1,000 followers, treat the first like as an index write.** one like opens the 1-fav retrieval index. eight likes earn a cluster embedding. thirty-two likes open another index. `phoenixRankAllCandidateProcessor.strato:62-92` · `Configs.scala:65`
+4. **Don't drop three posts into one scroll.** second post in the same refresh keeps 62.5%; third keeps 43.75%; floors at 0.25. per request / per refresh, not per day. `ranking_scorer.rs:614-616` · `param.rs:222-239`
 
-5. **do not pin a sketchy link.** pin a BAD or LOW_QUALITY URL and the account gets `SPAM_HIGH_RECALL` for 7 days. the same check re-runs on every follow you perform. `PinnedLowQualityOrBadUrl.bot:8-41` · `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`
+5. **If it needs to live past Tuesday, make it video. Longer than 10 seconds.** text is 24–48h. `video` windows: 48 / 96 / 168 / 336 / 720h. `nsfw_video` windows: **only** 48h and 168h (`phoenix-rankall/src/config/mod.rs:146-152`). both require duration **strictly >** 10,000 ms (`eventProcessing.strato:24, 389-405`). evergreen can sit 5 years; published evergreen writers check media type only (no duration test; promotion job not in repo) (`phoenix-rankall/src/config/mod.rs:139-156`). VQV **weight** credit is a separate >10,000 ms gate (`param.rs:677-682`).
 
-6. **shoot video longer than 10 seconds.** text ages out of retrieval in 24-48h. video can sit 720h. evergreen video sits 5 years. sub-10s and NSFW clips miss that tail. `phoenix-rankall/src/config/mod.rs:139-156` · `param.rs:677-682`
+6. **Treat one bad label like it can close every stranger door.** 28 + 26 VF rules. UNSAFE writes four OON drops and can relabel old posts (`rtf_tweets_on_unsafe_verdict.bot:17-27`). pin a BAD or LOW_QUALITY URL → account `SPAM_HIGH_RECALL` for 7 days; re-check on every follow (`PinnedLowQualityOrBadUrl.bot:8-41` · `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`). `OneWeekInSecs` is a botmaker DSL builtin not defined in the repo; 7 days is implied by the constant name.
 
 ## the price list
 
 Each weight multiplies an unpublished predicted probability. relative pricing, not an exchange rate. experiment arms can differ. this is the open-sourced code, not live production weights. `param.rs:1` · `README.md:387-391`
+
+The weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). The weights "reflect a combination of how much an action is valued in ranking and typical propensities of these actions across the X network (e.g. negative feedback is overall rare)" (`home-mixer/params/param.rs:279-281`).
 
 the single biggest boost in the file fires when someone who follows you back sees an original post: reply weight jumps 5 → 20. that is the reply term, not the whole post. replies and reposts get none of it. the dwell half of the same experiment shipped at 0.0. `param.rs:284-295` · `ranking_scorer.rs:180-193`
 
@@ -46,7 +50,7 @@ the single biggest boost in the file fires when someone who follows you back see
 
 ## the penalty ledger
 
-X's code weighs one report as heavily as 468 likes (-234 / 0.5). the file comment says negatives are huge because they are rare. a predicted report of 0.01 is not 468 likes. `param.rs:279-281, 442`
+X's code weighs one report as heavily as 468 likes (-234 / 0.5) in weight space. the file comment says negatives are huge because they are rare (`param.rs:279-281`). a predicted report of 0.01 is not 468 likes. `param.rs:442`
 
 | action | weight | cite |
 |---|---:|---|
@@ -58,26 +62,28 @@ X's code weighs one report as heavily as 468 likes (-234 / 0.5). the file commen
 
 mute is priced worse than block. these are predicted probabilities that *this viewer* takes the action, not a rap sheet. a net-negative post is not deleted. it gets squeezed into `[0, 0.001]` and sorts under everything that isn't hated. `ranking_scorer.rs:525-533` · `config.rs:40`
 
-the report-to-like job (Agatha) only counts likes from strangers. likes from your own followers do not offset blocks and reports. `agatha/.../Favs.scala:15-19, 51-68`
+the report-to-like job (Agatha) only counts likes from accounts with no follow edge in either direction. likes from people you follow or who follow you do not offset blocks and reports. `agatha/.../Favs.scala:15-19, 51-68, 59-62`
 
-## how a post becomes a candidate
+## discovery gates (1 / 8 / 32 + Thunder + retention)
 
 | gate | what it opens | cite |
 |---|---|---|
 | 1 like | 1-fav retrieval index | `phoenixRankAllCandidateProcessor.strato:78-92` |
-| 8 likes | a "people who like what you like" embedding (SimClusters). similarity below 0.5 gets dropped. 8h half-life, the only real one in the release. NSFW-flagged authors are stripped from this out-of-network path. | `Configs.scala:39, 65` · `simclusters_source.rs:35` · `oon_nsfw_simclusters_filter.rs` |
+| 8 likes | persistent SimClusters embedding. ANN drops below 0.5. 8h half-life — the only real engagement half-life in the release. | `Configs.scala:39, 65` · `simclusters_source.rs:35` |
 | 32 likes | 32-fav retrieval index | `phoenixRankAllCandidateProcessor.strato:62-76` |
 | reply / repost / community | never indexed out-of-network. dropped pre-scoring if they leak in. | `phoenixRankAllCandidateProcessor.strato:441-446` · `oon_retweet_reply_filter.rs:13-18` |
-| Thunder (what followers can even be served) | 50 most recent originals, 30 most recent replies, 2-day retention, 1,200 posts returned. even followers do not see your whole firehose. | `thunder/config.rs:1-6` · `thunder/args.rs:48-49` |
+| Thunder (followers) | 50 most recent originals, 30 most recent replies, 2-day retention, 1,200 posts returned. | `thunder/config.rs:1-6` · `thunder/args.rs:48-49` |
 | text | 24h and 48h retrieval | `phoenix-rankall/src/config/mod.rs:139-156` |
-| video | 48 / 96 / 168 / 336 / **720h**. evergreen **5 years**. Grok evergreen 30 days. sub-10s or NSFW video does not enter those indexes. | same file · `eventProcessing.strato` `isMediaEligible` |
+| video | 48 / 96 / 168 / 336 / **720h** when duration **>** 10,000 ms (`eventProcessing.strato:24, 389-405`). evergreen **5 years** (media type only in published writers; no duration test; promotion job not in repo). Grok evergreen 30 days. | `phoenix-rankall/src/config/mod.rs:139-156` · `eventProcessing.strato:24, 389-405` |
+| nsfw_video | **only** 48h and 168h (not 96/336/720h). same duration gate as `video`. | `phoenix-rankall/src/config/mod.rs:151-152` · `eventProcessing.strato:24, 389-405` |
+| sub-10s video | does **not** enter the `video` 48h–720h or `nsfw_video` 48h/168h indexes (strict `>`; exactly 10,000 ms also out). does **not** claim the same floor for the 5-year evergreen tail. VQV **weight** credit is a separate >10,000 ms gate. | `eventProcessing.strato:24, 389-405` · `param.rs:677-682` |
 | feed age | 48h binary gate. no ranking half-life. | `config.rs:36` |
 
-**under 1,000 followers, one original per request can get force-slotted to rank index 15.** it must already sit in the top 85% of the non-zero pool. replies and reposts are ineligible. cross 1,000 followers or 1,000 views and it is gone. the slot is deterministic at shipped defaults (`random_range(15..16)` is one value). the 24h freshness check only binds in the MoE treatment arm, which is off. the tail retrieval index uses the same 1,000-follower line. `author_cold_start.rs:86-91, 167-189` · `param.rs:620-663` · `phoenix-rankall/src/config/mod.rs:87-88`
+**under 1,000 followers, one original per request can get force-slotted to rank index 15.** it must already sit in the **top 85%** of the non-zero pool. bottom-15% posts are ineligible. replies and reposts are ineligible. cross 1,000 followers or 1,000 views and it is gone. the slot is deterministic at shipped defaults (`random_range(15..16)` is one value). the tail retrieval index uses the same 1,000-follower line. `author_cold_start.rs:86-91, 167-189` · `param.rs:620-663` · `phoenix-rankall/src/config/mod.rs:87-88`
 
 in-network replies and reposts still take the 0.75 haircut, same as a stranger's post. near-duplicates get scored 0.0. a post with no embedding gets a random unit vector. retweet dedup keeps the first arrival, so a repost of your original can knock the original out. `param.rs:246-265` · `ranking_scorer.rs:747-754` · `dpp_model.rs:22-34, 90, 147-150` · `retweet_deduplication_filter.rs:19-26`
 
-## what actually kills you
+## what actually kills you (Door 6)
 
 ### followers still see you, nobody else does
 
@@ -91,27 +97,27 @@ tweet: `SPAM_HIGH_RECALL`, `NSFW_TEXT`, `NSFW_HIGH_RECALL`, `NSFW_HIGH_PRECISION
 
 media / flags: DMCA media, geo-restricted media, NSFW user author, NSFW admin author, tweet-level NSFW user flag, tweet-level NSFW admin flag
 
-account: `NSFW_HIGH_RECALL`, `NSFW_HIGH_PRECISION`, `SPAM_HIGH_RECALL`, `COMPROMISED`, `READ_ONLY`, `IMPERSONATION_HIGH_PRECISION`, `NSFW_AVATAR_IMAGE`, `NSFW_BANNER_IMAGE`, `NSFW_NEAR_PERFECT`, `ABUSIVE_HIGH_RECALL`, `DO_NOT_AMPLIFY_NON_FOLLOWER`
+account: `NSFW_HIGH_RECALL`, `NSFW_HIGH_PRECISION`, `SPAM_HIGH_RECALL`, `COMPROMISED`, `READ_ONLY`, `IMPERSONATION_HIGH_PRECISION`, `NSFW_AVATAR_IMAGE`, `NSFW_BANNER_IMAGE`, `NSFW_NEAR_PERFECT`, `ABUSIVE_HIGH_RECALL`, plus the rule `DoNotAmplifyNonFollowerRule` (`DO_NOT_AMPLIFY_NON_FOLLOWER_USER_DROP`) which reads account label `DO_NOT_AMPLIFY` — it is not itself a label
 
-`DO_NOT_AMPLIFY_NON_FOLLOWER` and `ABUSIVE_HIGH_RECALL` are the literal "followers still see you" pair. `user_label_drops.rs:101-119`
+The "followers still see you" carve-out (`require_non_follower = true`) ships on **only two** rules: `ABUSIVE_HIGH_RECALL_USER_DROP` (`user_label_drops.rs:101-106`) and `DO_NOT_AMPLIFY_NON_FOLLOWER_USER_DROP` (`:113-119`). Adjacent `NSFW_NEAR_PERFECT_USER_DROP` ships `false` (`:107-112`) and drops for followers too.
 
-**four labels also hide you from followers:** hateful conduct, violent speech, abuse, civic integrity (`FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`, `FOSNR_CIVIC_INTEGRITY`). insults-level FOSNR is out-of-network only. author self-view is exempt. `tweet_label_drops.rs:47-93, 126-149`
+**four FOSNR labels also hide you from followers:** hateful conduct, violent speech, abuse, civic integrity (`FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`, `FOSNR_CIVIC_INTEGRITY`) at `tweet_label_drops.rs:126-149` (base, `registry.rs:115-118`). insults-level FOSNR is out-of-network only. author self-view is exempt. Within the same file block `:47-93`, only PDNA / BOUNCE / SPAM / FOR_EMERGENCY_USE_ONLY are base (`:52-69, 88-93`; `registry.rs:111-114`). `SPAM_HIGH_RECALL_DROP`, `NSFW_TEXT_DROP`, and `NSFW_HIGH_RECALL_DROP` sit in that block (`:70-87`) but register OON-only (`registry.rs:147, 153-154`).
 
 **NSFW 3-of-5 rollup.** 3 of your last 5 posts labeled `NSFW_HIGH_PRECISION` inside 60 days applies an account-level label for 7 days. the exclusions block sets `highPageRankOrGreyBadge: false`. Premium / high cred does not save you. more than 2 NSFW-labeled posts in one day also triggers an account-level label. `postToUserLabelRules.strato:396-426` · `ApplyNsfwUserLabel.df:35-40`
 
-### the URL landmine
+### the URL landmine (retroactive)
 
 the algorithm does not penalize having a link. opening a link is +0.2. there is no link boolean in the model's wire format. `param.rs:310` · `recsys.proto:1105-1112`
 
 what it penalizes is destination reputation.
 
 - **UNSAFE** applies four out-of-network-drop labels at once: `SEARCH_BLACKLIST`, `UNSAFE_URL`, `DO_NOT_AMPLIFY`, `MALICIOUS_URL`. `Tweet_Search_Blacklist_RTF_All_UNSAFE_URL_Sources.bot:6, 35-53`
-- **BAD** applies `SPAM` or `SPAM_HIGH_RECALL`. **LOW_QUALITY** applies `SPAM_HIGH_RECALL`. `Tweet_Spam_High_Recall_RTF_All_Bad_URL_Sources.bot:7,41,44` · `LQ_Tweets_..._NonFollower.bot:8-16`
+- **BAD** applies `SPAM` (exact `BAD`) or `SPAM_HIGH_RECALL` (fallback). Gate: `GetUrlVerdictForSingleChain(...) MATCHES ".*BAD"` (`Tweet_Spam_High_Recall_RTF_All_Bad_URL_Sources.bot:7, 40-46`) — this file never sees a `LOW_QUALITY` verdict. **LOW_QUALITY** is a separate rule: any hop `GetUrlVerdict == "LOW_QUALITY"` applies `SPAM_HIGH_RECALL` (`LQ_Tweets_With_LQ_URL_Verdict_At_Mention_To_NonFollower_v2.bot:9, 16`).
 - verdict changes relabel old posts, capped at 5,000. a link that goes bad later takes the archive with it. `rtf_tweets_on_unsafe_verdict.bot:17-27` · `NSFW_Card_Image_URL_to_Tweet_Verdict.bot:20-22`
-- full redirect chains are scored. your shortener's downstream is your reputation. `LQ_Tweets_..._NonFollower.bot:10`
-- pin a BAD or LOW_QUALITY URL and the *account* gets `SPAM_HIGH_RECALL` for 7 days, re-checked on every follow. `PinnedLowQualityOrBadUrl.bot:8-41` · `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`
+- full redirect chains are scored. your shortener's downstream is your reputation. `LQ_Tweets_With_LQ_URL_Verdict_At_Mention_To_NonFollower_v2.bot:9`
+- pin a BAD or LOW_QUALITY URL and the *account* gets `SPAM_HIGH_RECALL` for 7 days, re-checked on every follow. `PinnedLowQualityOrBadUrl.bot:8-41` · `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`. `OneWeekInSecs` is a botmaker DSL builtin not defined in the repo; 7 days is implied by the constant name.
 
-## grox: the more it works, the harder it gets inspected
+## grox: traction buys scrutiny
 
 Grox is the publish-time judge. named bait policies: `SpamEngagementBaiting`, `SpamEngagementFarming`, `SpamEngagementTrading`, `SpamHashTagAbuse`, `SpamMentionAbuse`. `grox/flows/ptos/state.py:24-70`
 
@@ -129,7 +135,7 @@ the rubric prompts are withheld on purpose. "excluded to reduce gameability of t
 
 **"posts have a half-life."** not in the ranker. there is a 48h feed gate. the real half-lives are SimClusters (8h) and the exploration label (8h). post while the cluster embedding is still hot. `config.rs:36` · `Configs.scala:39` · `recsys_batch.py:47`
 
-**"media gets a boost."** no media multiplier. video's edge is retrieval memory. make it longer than 10 seconds. video quality view is also zeroed for *viewers* over 10,000 followers. `param.rs:297-317` · `candidates_util.rs:4, 19-40`
+**"media gets a boost."** no media multiplier. video's edge is retrieval memory: `video` 48h–720h and `nsfw_video` 48h/168h need duration > 10,000 ms (`eventProcessing.strato:24, 389-405`; `config/mod.rs:146-152`); evergreen is separate. VQV weight credit is also >10,000 ms and zeroed for *viewers* over 10,000 followers. `param.rs:297-317, 677-682` · `candidates_util.rs:4, 19-40`
 
 **"X doesn't detect engagement bait."** it does, with named LLM policies. write the post.
 
@@ -141,7 +147,7 @@ the rubric prompts are withheld on purpose. "excluded to reduce gameability of t
 
 ## what they held back
 
-they open-sourced the map and redacted the parts you would use to game it. some numbers in this dump are intentionally fake. don't quote `param.rs` as live gospel.
+They published the map. They kept the parts you'd use to game it. some numbers in this dump are intentionally fake. don't quote `param.rs` as live gospel.
 
 - **no trained Phoenix weights.** training code and synthetic data only. every `P(action)` comes from a model whose learned parameters are absent. `README.md:32` · `phoenix/README.md:59-65`
 - **mock `12.34`.** abuse-enforcement follower floor is `12.34`, with the in-file comment: "Prod uses a different follower count floor; this is a mock value to reduce gaming." `enforcement_user.yaml:18-20`
