@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.4] - 2026-08-13
+
+Honesty pass on `v3-output-polish` from a blind usability test. Copy and spec only. Door
+logic, gates, citations, ordering, and plain-language reason lines unchanged.
+
+### Fixed
+
+- `➡️` recommendations may not invent a derivation. Two forms only: name a real draft
+  signal, or say there is no signal, name the default, and name what the assumption costs.
+- Judgment receipt stays one line; arguable calls print `Judgment: {rule}, borderline.`
+- Door 4 template and worked-example note both treat PENDING on 8 likes as unconditional
+  (SimClusters has no draft-time lockout), matching `references/doors.md`.
+
 ## [3.0.3] - 2026-08-13
 
 Plain-language pass on `v3-output-polish`. Copy only. Door logic, states, gates, citations, and ordering unchanged.

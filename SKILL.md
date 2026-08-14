@@ -45,9 +45,25 @@ the choices inline>
 
 Rules:
 
-- **Every question carries a `➡️` recommended answer.** It must be the most likely real answer
-  for this specific draft, not a generic default. Where the draft gives a signal (no media in
-  the text, reads like an original, a link is present), say so in the recommendation.
+- **Every question carries a `➡️` recommended answer.** A `➡️` line has two legitimate forms,
+  and only these two. Pick by whether the draft actually carries a signal. Never fill the slot
+  with a plausible-sounding guess.
+
+  1. **Derived:** there IS a signal in the draft. Name the signal.
+
+     `➡️ Reply. The draft opens by agreeing with a specific point ("the part about retrieval
+     indexes"), which only makes sense under someone else's post.`
+
+  2. **No signal:** say so plainly, name the default you will take, and say what it costs.
+
+     `➡️ Nothing in the draft tells me either way. I will assume over 1,000 unless you say
+     otherwise; that only changes whether the cold-start line reads closed or pending.`
+
+- NEVER invent a reason. If the draft carries no signal, form 2 is mandatory.
+- Form 2 must name the consequence of the assumption so a user knows whether to bother
+  correcting it. That is what keeps it low friction.
+- Do not pad form 2 into sounding like form 1. "Reads like a smaller account" from a draft
+  with no follower signal is exactly the banned move.
 - Directly after the last question, one line offering that answering "yes" / "go" takes all
   recommendations. Make proceeding the low-friction path.
 - Do not ask if a door does not depend on the answer.
@@ -111,10 +127,16 @@ Run the four judgment rules in [references/rules.md](references/rules.md) agains
 These are the only machinery in the kit that reads the draft. They are part of Job 1's main
 path, not an appendix, not optional, and not limited to the internal script section.
 
-Receipt line (always emit, never a findings dump):
+Receipt line (always emit, never a findings dump). Keep it to one line in every case:
 
-- `Judgment: none flagged.`
-- `Judgment: {flagged J-rule names}.`
+- Clear-cut: `Judgment: J-ENGAGEMENT-BAIT.`
+- Arguable: `Judgment: J-REPLY-BAIT, borderline.`
+- Nothing: `Judgment: none flagged.`
+
+Test: if the draft contains an explicit ask for engagement, it is clear-cut. If the call
+rests on tone, substance, or how repetitive the reply reads, it is borderline. Do not expand
+the receipt beyond one line in either case. If several rules flag, stay on one line; append
+`, borderline.` only to the names whose call is arguable.
 
 A flagged rule may also feed the chosen lever. Do not add a separate judgment section beyond
 that one line. If any J-rule flags, the CLEAR door-6 line still stays CLEAR (text never trips
@@ -231,7 +253,9 @@ month (video long tail) · The kill switch (visibility filtering).
 
 Door 2: if draft-time gates pass, render **PENDING** (scroll position; nobody can see it
 before you post), never OPEN by dropping that gate. Door 3 originals: **PENDING** on the
-first like (citation also covers the later 32-like path). Door 4: **PENDING** on 8 likes.
+first like (citation also covers the later 32-like path). Door 4: **PENDING** on 8 likes,
+always. SimClusters has no draft-time lockout; a reply still prints PENDING on 8 likes.
+Do not wait for an original path.
 
 ### The one edit: lever ladder
 
@@ -290,7 +314,8 @@ Rewrite: {what changed}
 3 friends so this blows up."
 
 Internal only (do not print): door 3 CLOSED (reply; `phoenixRankAllCandidateProcessor.strato:441-446`);
-door 2 CLOSED (reply); door 4 PENDING on 8 likes only after an original path exists; door 6
+door 2 CLOSED (reply); door 4 PENDING on 8 likes always (no draft-time lockout, including
+for replies); door 6
 CLEAR (no warning supplied) with pointer `See the flag below.` (bait does not trip
 the door). Rung 1 applies: make it an original. That reopens door 3 (and restores cold-start
 eligibility on door 2 if followers ≤ 1000). Rung 2 would also strip the bait, but a reopened
