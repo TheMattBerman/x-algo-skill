@@ -1,5 +1,40 @@
 # Changelog
 
+## [3.0.5] - 2026-08-13
+
+Rung 1 self-contained test on `v3-output-polish`. Spec and copy only. No gate, citation,
+state, or ordering changes.
+
+### Fixed
+
+- Rung 1 still converts a reply to an original, but only after testing whether the draft
+  is self-contained. A context-dependent reply gets a distinct one-edit sentence and a
+  standalone rewrite, not the reply text relabelled. A point too thin to stand alone stays
+  a reply; that is not the No-edit outcome.
+
+## [3.0.4] - 2026-08-13
+
+Honesty pass on `v3-output-polish` from a blind usability test. Copy and spec only. Door
+logic, gates, citations, ordering, and plain-language reason lines unchanged.
+
+### Fixed
+
+- `➡️` recommendations may not invent a derivation. Two forms only: name a real draft
+  signal, or say there is no signal, name the default, and name what the assumption costs.
+- Judgment receipt stays one line; arguable calls print `Judgment: {rule}, borderline.`
+- Door 4 template and worked-example note both treat PENDING on 8 likes as unconditional
+  (SimClusters has no draft-time lockout), matching `references/doors.md`.
+
+## [3.0.3] - 2026-08-13
+
+Plain-language pass on `v3-output-polish`. Copy only. Door logic, states, gates, citations, and ordering unchanged.
+
+### Fixed
+
+- Door reason lines are consequence sentences a creator can use; citations keep the precision.
+- Door 6 CLEAR no longer says VF / supplied label / URL verdict. A flagged J-rule appends `See the flag below.`
+- No-edit wording, Job 2 symptom copy, and Job 3 branch names/Observe lines use the same register.
+
 ## [3.0.2] - 2026-08-13
 
 Second-test polish on `v3-reach-check`. No kit restructure. Manufactured-edit and Job 3 lead stay as in 3.0.1.
