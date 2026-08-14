@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.3] - 2026-08-13
+
+Plain-language pass on `v3-output-polish`. Copy only. Door logic, states, gates, citations, and ordering unchanged.
+
+### Fixed
+
+- Door reason lines are consequence sentences a creator can use; citations keep the precision.
+- Door 6 CLEAR no longer says VF / supplied label / URL verdict. A flagged J-rule appends `See the flag below.`
+- No-edit wording, Job 2 symptom copy, and Job 3 branch names/Observe lines use the same register.
+
 ## [3.0.2] - 2026-08-13
 
 Second-test polish on `v3-reach-check`. No kit restructure. Manufactured-edit and Job 3 lead stay as in 3.0.1.

@@ -118,8 +118,8 @@ Receipt line (always emit, never a findings dump):
 
 A flagged rule may also feed the chosen lever. Do not add a separate judgment section beyond
 that one line. If any J-rule flags, the CLEAR door-6 line still stays CLEAR (text never trips
-the kill switch) but **must** carry a pointer to that Judgment line so a six-door skim cannot
-read CLEAR as "nothing to fix."
+the kill switch) but **must** append ` See the flag below.` so a six-door skim cannot
+read CLEAR as "nothing to fix." Do not restate the J-rule name on that door line.
 
 ### Door line templates
 
@@ -129,49 +129,109 @@ zero colour, structure carries the emphasis. Never use an em dash (`—`) in use
 Each door is a block. Pad the state token to width 7 (PENDING and TRIPPED are the longest),
 then two spaces, then the label. Continuation lines indent 9 spaces so they sit under the label.
 
-Doors 1–5:
+Reason lines are plain sentences that state the consequence. Citations carry the precision.
+Do not put engineering nouns in a reason line (no OON, VF, in-network, pre-scoring, persistent
+embedding, supplied label, URL verdict, index write, candidate pool, bare "retrieval", or a
+bare decimal). Wrap any reason that would run long enough to break the left column. Prefer two
+short lines over one long one. Print the sentences below, not the evaluation jargon.
+
+Doors 1–5 (use the matching case; keep the citation on its own indented line):
 
 ```
-CLOSED   {label}
-         {reason}
-         ({file:line})
+OPEN     Your followers (Thunder)
+         Goes to your followers at full weight.
+         (param.rs:246-265)
 
-PENDING  {label}
-         eligible, pending {signal that unlocks it}
-         ({file:line})
+OPEN     Your followers (Thunder)
+         Goes to your followers, but at three quarters the weight
+         because it is a reply.
+         (param.rs:246-265)
+```
 
-OPEN     {label}
-         {reason}
-         ({file:line})
+Adapt the reply line for a repost: `because it is a repost.`
+
+```
+CLOSED   A bump while you're small (cold start)
+         Replies do not qualify. This one is for original posts only.
+         (author_cold_start.rs:86-91)
+
+CLOSED   A bump while you're small (cold start)
+         Only for accounts under 1,000 followers.
+         (author_cold_start.rs:86-91)
+
+PENDING  A bump while you're small (cold start)
+         You qualify. Whether it actually fires depends on where this
+         lands in someone's scroll, which nobody can see before you post.
+         (author_cold_start.rs:86-91, 167-189)
+
+CLOSED   Strangers' For You (Phoenix retrieval)
+         Replies never get filed where strangers can find them.
+         Not a slower path, no path.
+         (phoenixRankAllCandidateProcessor.strato:441-446)
+```
+
+Adapt the first sentence for a repost or a community post (`Reposts never get filed...` /
+`Community posts never get filed...`).
+
+```
+PENDING  Strangers' For You (Phoenix retrieval)
+         Open to you, but nothing reaches strangers until someone likes it.
+         That first like is what files it.
+         (phoenixRankAllCandidateProcessor.strato:78-92, 62-76)
+
+PENDING  People already into this (SimClusters)
+         Needs 8 likes before X builds a lasting picture of who this
+         post is for.
+         (Configs.scala:65)
+
+CLOSED   Still findable next month (video long tail)
+         No video, so there is nothing to keep.
+         Text drops out of circulation in a day or two.
+         (eventProcessing.strato:24, 389-405)
+
+CLOSED   Still findable next month (video long tail)
+         Clips of 10 seconds or less do not get kept.
+         Yours needs to be clearly longer.
+         (eventProcessing.strato:24, 389-405)
+
+OPEN     Still findable next month (video long tail)
+         Video over 10 seconds stays findable for up to 30 days.
+         (eventProcessing.strato:24, 389-405)
 ```
 
 Door 6 (kill switch; never OPEN or CLOSED):
 
 ```
 CLEAR    The kill switch
-         no supplied label or URL verdict; VF is idle
-         ({file:line})
+         Nothing you told me trips it. I cannot check this one myself:
+         X keeps these flags on their side, so it only shows up here
+         if you already got a warning.
+         (registry.rs:101-170)
 
 TRIPPED  The kill switch
-         {known supplied label or verdict}
-         ({file:line})
+         You said X sent {the warning/restriction}.
+         That hides this from everyone who does not already follow you.
+         (registry.rs:101-170)
 ```
 
-When a J-rule flagged, keep state CLEAR and use this reason line (not a state change):
+When a J-rule flagged, keep state CLEAR. Same CLEAR sentences, then ` See the flag below.`
+Do not restate the rule name inline. Keep it short enough not to break the aligned column:
 
 ```
 CLEAR    The kill switch
-         no supplied label or URL verdict; VF is idle. See Judgment: {flagged J-rule names} (text only; does not trip this door).
-         ({file:line})
+         Nothing you told me trips it. I cannot check this one myself:
+         X keeps these flags on their side, so it only shows up here
+         if you already got a warning. See the flag below.
+         (registry.rs:101-170)
 ```
 
 Door labels: Your followers (Thunder) · A bump while you're small (cold start) · Strangers'
 For You (Phoenix retrieval) · People already into this (SimClusters) · Still findable next
 month (video long tail) · The kill switch (visibility filtering).
 
-Door 2: if draft-time gates pass, render **PENDING** on top-85% pool position, never OPEN by
-dropping that gate. Door 3 originals: **PENDING** on first like (1fav) and 32 likes (32fav).
-Door 4: **PENDING** on 8 likes (persistent embedding).
+Door 2: if draft-time gates pass, render **PENDING** (scroll position; nobody can see it
+before you post), never OPEN by dropping that gate. Door 3 originals: **PENDING** on the
+first like (citation also covers the later 32-like path). Door 4: **PENDING** on 8 likes.
 
 ### The one edit: lever ladder
 
@@ -206,7 +266,7 @@ rungs.
 edit. Emit this wording (second sentence lists costs that are **absent**, not actions to take;
 do not add a rewrite):
 
-`No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply or repost (would close stranger doors), a clip already in the draft at or under 10 seconds (would close the long video index), a J-rule bait close, news with no reusable takeaway, or a restriction notice from X.`
+`No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply or repost (would hide this from strangers), a clip already in the draft at or under 10 seconds (would not stay findable), bait that asks people to like or tag, news with no reusable takeaway, or a restriction notice from X.`
 
 One-edit sentence shapes (do not bend rung 1's template onto 3 or 4):
 
@@ -231,7 +291,7 @@ Rewrite: {what changed}
 
 Internal only (do not print): door 3 CLOSED (reply; `phoenixRankAllCandidateProcessor.strato:441-446`);
 door 2 CLOSED (reply); door 4 PENDING on 8 likes only after an original path exists; door 6
-CLEAR (no supplied label) with pointer `See Judgment: J-ENGAGEMENT-BAIT` (bait does not trip
+CLEAR (no warning supplied) with pointer `See the flag below.` (bait does not trip
 the door). Rung 1 applies: make it an original. That reopens door 3 (and restores cold-start
 eligibility on door 2 if followers ≤ 1000). Rung 2 would also strip the bait, but a reopened
 door beats a removed risk. Do not print this paragraph.
@@ -240,27 +300,33 @@ Print this (doors first, no preface):
 
 ```
 CLOSED   Strangers' For You (Phoenix retrieval)
-         reply excluded from OON retrieval, dropped pre-scoring
+         Replies never get filed where strangers can find them.
+         Not a slower path, no path.
          (phoenixRankAllCandidateProcessor.strato:441-446)
 
 CLOSED   A bump while you're small (cold start)
-         replies are ineligible
+         Replies do not qualify. This one is for original posts only.
          (author_cold_start.rs:86-91)
 
 CLOSED   Still findable next month (video long tail)
-         no video in the draft
+         No video, so there is nothing to keep.
+         Text drops out of circulation in a day or two.
          (eventProcessing.strato:24, 389-405)
 
 PENDING  People already into this (SimClusters)
-         eligible, pending 8 likes for a persistent embedding
+         Needs 8 likes before X builds a lasting picture of who this
+         post is for.
          (Configs.scala:65)
 
 OPEN     Your followers (Thunder)
-         in-network; replies served at 0.75
+         Goes to your followers, but at three quarters the weight
+         because it is a reply.
          (param.rs:246-265)
 
 CLEAR    The kill switch
-         no supplied label or URL verdict; VF is idle. See Judgment: J-ENGAGEMENT-BAIT (text only; does not trip this door).
+         Nothing you told me trips it. I cannot check this one myself:
+         X keeps these flags on their side, so it only shows up here
+         if you already got a warning. See the flag below.
          (registry.rs:101-170)
 
 Judgment: J-ENGAGEMENT-BAIT.
@@ -289,32 +355,38 @@ Print this:
 
 ```
 CLOSED   Still findable next month (video long tail)
-         no video in the draft
+         No video, so there is nothing to keep.
+         Text drops out of circulation in a day or two.
          (eventProcessing.strato:24, 389-405)
 
 PENDING  Strangers' For You (Phoenix retrieval)
-         eligible, pending 1 like (1fav) and 32 likes (32fav)
+         Open to you, but nothing reaches strangers until someone likes it.
+         That first like is what files it.
          (phoenixRankAllCandidateProcessor.strato:78-92, 62-76)
 
 PENDING  People already into this (SimClusters)
-         eligible, pending 8 likes for a persistent embedding
+         Needs 8 likes before X builds a lasting picture of who this
+         post is for.
          (Configs.scala:65)
 
 PENDING  A bump while you're small (cold start)
-         eligible, pending top-85% pool position
+         You qualify. Whether it actually fires depends on where this
+         lands in someone's scroll, which nobody can see before you post.
          (author_cold_start.rs:86-91, 167-189)
 
 OPEN     Your followers (Thunder)
-         in-network originals served
+         Goes to your followers at full weight.
          (param.rs:246-265)
 
 CLEAR    The kill switch
-         no supplied label or URL verdict; VF is idle
+         Nothing you told me trips it. I cannot check this one myself:
+         X keeps these flags on their side, so it only shows up here
+         if you already got a warning.
          (registry.rs:101-170)
 
 Judgment: none flagged.
 
-No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply or repost (would close stranger doors), a clip already in the draft at or under 10 seconds (would close the long video index), a J-rule bait close, news with no reusable takeaway, or a restriction notice from X.
+No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply or repost (would hide this from strangers), a clip already in the draft at or under 10 seconds (would not stay findable), bait that asks people to like or tag, news with no reusable takeaway, or a restriction notice from X.
 
 This reads the code they published, not the live knobs they can turn on you tomorrow.
 ```
@@ -338,7 +410,7 @@ Use [references/doors.md](references/doors.md). Summary:
   has only 48h and 168h (`config/mod.rs:151-152`). VQV weight credit separately (`param.rs:677-682`).
 - **Door 6 VF kill switch:** **CLEAR** unless a *known supplied* label/verdict applies (then
   **TRIPPED**); never infer from text. Never render as OPEN. A J-rule flag may append
-  `See Judgment:` on a CLEAR line; that does not trip the door.
+  `See the flag below.` on a CLEAR line; that does not trip the door.
 
 Accuracy guards: weight-framed claims only ("the weight on a copy-link share is 40x the weight on a like"); rare-event caveat (`param.rs:279-281`) in the same paragraph as any weight-ratio claim; mutual-follow +15 is a reply-term boost (5→20), not a post-level 4x; diversity is per request/refresh, never per day.
 
@@ -362,24 +434,24 @@ from the post; ask the rest in a single batch using **How to ask**, including:
   account or a link (never infer a label or URL verdict from text or a domain)
 - What they observed (who saw it, impressions, timing)
 
-Output (no analysis preface; doors first, same two-line aligned blocks as Job 1):
+Output (no analysis preface; doors first, same two-line aligned blocks as Job 1, same
+plain reason lines):
 
-1. Closed / pending / tripped doors ranked by fit with the symptom (followers-only → door 3/4/6; zero
-   impressions → door 1 retention / age gate / diversity burst; etc.).
-2. Name what cannot be determined from the outside (server-side labels, unpublished `P(action)`,
-   experiment arm, per-request top-85% pool position) rather than guessing.
+1. Closed / pending / tripped doors ranked by fit with the symptom (only followers saw it →
+   doors 3/4/6; nobody saw it → door 1 age/retention; etc.).
+2. Name what cannot be determined from the outside rather than guessing: whether X flagged
+   you, which test group you were in, and where this sat in someone's scroll.
 3. Scope footer as in Job 1.
 
-Symptom → door mapping (start here, then cite):
+Symptom → door mapping (start here, then cite; explain in the same plain register as Job 1):
 
 - Almost only followers saw it → door 3 CLOSED (reply/repost/community) or still PENDING on
-  first/32nd like; or door 6 TRIPPED (OON drop).
-- Never left your own network and you are under 1k → door 2 may have been PENDING on top-85%
-  and lost the slot.
-- Died after early likes → check door 4's 8-like embedding + 8h half-life; door 6 if a label
-  landed after publish.
-- Video vanished after ~2 days → door 5 CLOSED (no video / at-or-under 10s for `video`
-  48h–720h windows; `nsfw_video` is 48h and 168h only).
+  the first like; or door 6 TRIPPED (hidden from everyone who does not already follow you).
+- Never left people who already follow you, and you are under 1k → door 2 may have been
+  PENDING on scroll position and lost the slot.
+- Died after early likes → check door 4's 8-like lasting picture + 8h half-life; door 6 if a
+  warning landed after publish.
+- Video vanished after ~2 days → door 5 CLOSED (no video, or a clip at or under 10 seconds).
 
 ---
 
@@ -394,8 +466,8 @@ recommended answer, then the yes/go line). Do not invent a label.
 
 Then a **capped** differential. Rank: (1) follower-vs-stranger split they
 described; (2) published duration/expiry vs their timeline; (3) unmentioned required
-trigger (pinned URL, NSFW history) ranks lower; (4) contradiction last or out, e.g. FOSNR
-(also kills in-network) if followers still see them. Emit:
+trigger (pinned URL, NSFW history) ranks lower; (4) contradiction last or out, e.g. the
+four flags that also hide you from followers, if followers still see them. Emit:
 
 1. The lead line above (first, always).
 2. **Top 3 branches** by that rubric. Each: name, what they would observe if that were the
@@ -405,28 +477,32 @@ trigger (pinned URL, NSFW history) ranks lower; (4) contradiction last or out, e
 
 Do not walk all six.
 
-Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet.md)):
+Branches (see [references/creator-cheat-sheet.md](references/creator-cheat-sheet.md)).
+Print the name and Observe in plain language; keep the citation. Do not dump engineering nouns
+into the Observe line.
 
-1. **NSFW 3-of-last-5 rollup.** Observe: strangers vanish ~7 days after an NSFW cluster;
-   followers may still see you. 3 of last 5 `NSFW_HIGH_PRECISION` in 60 days → account label
-   7 days; `highPageRankOrGreyBadge: false` (`safety-label-user-agg/postToUserLabelRules.strato:396-426`).
-2. **Retroactive URL verdict.** Observe: old posts with that URL die together when the verdict
-   flips (cap 5,000). UNSAFE applies four OON-drop labels (`rtf_tweets_on_unsafe_verdict.bot:17-27`).
-3. **Pinned-post trap.** Observe: account-level stranger drop while the pin stays bad;
-   re-triggers on follow. Pin BAD/LOW_QUALITY URL → account `SPAM_HIGH_RECALL` 7 days
+1. **NSFW cluster (3 of last 5).** Observe: strangers vanish about 7 days after a cluster of
+   NSFW posts; people who follow you may still see you.
+   (`safety-label-user-agg/postToUserLabelRules.strato:396-426`)
+2. **A link X later marked unsafe.** Observe: old posts with that URL die together when X
+   flips the call (cap 5,000). That hides them from strangers
+   (`rtf_tweets_on_unsafe_verdict.bot:17-27`).
+3. **Pinned-post trap.** Observe: strangers stop seeing you while the pin stays bad; it can
+   fire again when someone follows you. Pin a BAD or LOW_QUALITY URL and the account can be
+   treated as spam for 7 days
    (`PinnedLowQualityOrBadUrl.bot:8-41`; `FollowFromActorWithPinnedLowQualityOrBadUrl.bot:2,7-45`).
    `OneWeekInSecs` is a botmaker DSL builtin not defined in the repo; 7 days is implied by the
    constant name.
-4. **Four FOSNR labels that also kill in-network.** Observe: followers and strangers both lose
-   the post. `FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`,
-   `FOSNR_CIVIC_INTEGRITY` (insults-level FOSNR is OON-only).
-5. **`DoNotAmplifyNonFollowerRule`.** Observe: followers still see you; strangers do not.
-   A **rule**, not a safety label. `"DoNotAmplifyNonFollowerRule"`, account label
-   `LabelValue::DO_NOT_AMPLIFY`, `require_non_follower = true` (`user_label_drops.rs:113-119`).
-   Pair with `ABUSIVE_HIGH_RECALL_USER_DROP` (`:101-106`). Adjacent
-   `NSFW_NEAR_PERFECT_USER_DROP` ships `false` (`:107-112`).
-6. **Other of the 26 OON-only drops.** Observe: same follower-only pattern without the pinned-URL
-   or NSFW-rollup timeline. Full list in the cheat sheet (`registry.rs:141-166`).
+4. **Four flags that also hide you from followers.** Observe: followers and strangers both lose
+   the post. Published names: `FOSNR_HATEFUL_CONDUCT`, `FOSNR_VIOLENT_SPEECH`, `FOSNR_ABUSE`,
+   `FOSNR_CIVIC_INTEGRITY`. Insults-level versions of these hide you from strangers only.
+5. **Do not amplify to non-followers.** Observe: people who follow you still see you; strangers
+   do not. A **rule**, not a safety label (`user_label_drops.rs:113-119`). Pair with
+   `ABUSIVE_HIGH_RECALL_USER_DROP` (`:101-106`). Adjacent `NSFW_NEAR_PERFECT_USER_DROP` ships
+   `false` (`:107-112`).
+6. **Other of the 26 stranger-only hides.** Observe: same "only followers see you" pattern
+   without the pinned-URL or NSFW-cluster timeline. Full list in the cheat sheet
+   (`registry.rs:141-166`).
 
 ---
 
