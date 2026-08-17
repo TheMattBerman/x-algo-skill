@@ -44,6 +44,7 @@ function parse(argv) {
     repost: false,
     media: null,
     videoDurationMs: null,
+    mixedMedia: false,
     urlVerdict: null,
     text: null,
     file: null,
@@ -52,6 +53,7 @@ function parse(argv) {
     const arg = argv[i];
     if (arg === "--reply") data.reply = true;
     else if (arg === "--repost") data.repost = true;
+    else if (arg === "--mixed-media") data.mixedMedia = true;
     else if (
       ["--text", "--file", "--media", "--video-duration-ms", "--known-oon-drop-label", "--url-verdict"].includes(
         arg,
@@ -148,20 +150,26 @@ function check(data) {
     );
   }
 
-  if (data.media === "video" && data.videoDurationMs !== null && data.videoDurationMs < 10000) {
+  const videoFailsIndexGate =
+    data.media === "video" &&
+    data.videoDurationMs !== null &&
+    (data.videoDurationMs <= 10000 || data.mixedMedia);
+  if (videoFailsIndexGate) {
     add(
       "D-VIDEO-DURATION",
       "FLAG",
-      "param.rs:317,677-682; candidates_util.rs:19-40",
-      "Video is under 10 seconds, so VQV credit does not apply.",
+      "eventProcessing.strato:24, 389-404; param.rs:317,677-682",
+      data.mixedMedia
+        ? "Mixed media fails hasValidImmersiveVideo (forall). Index gate first; VQV credit is a separate ranking gate."
+        : "Video duration is at or under 10,000 ms, so hasValidImmersiveVideo fails (strict >). Index gate first; VQV credit is a separate ranking gate.",
     );
   } else {
     add(
       "D-VIDEO-DURATION",
       "PASS",
-      "param.rs:317,677-682; candidates_util.rs:19-40",
+      "eventProcessing.strato:24, 389-404; param.rs:317,677-682",
       data.media === "video"
-        ? "Video metadata does not show a sub-10-second VQV condition."
+        ? "Video metadata clears the index duration gate (strictly greater than 10,000 ms, video only)."
         : "Not a video post.",
     );
   }
@@ -187,7 +195,7 @@ function print(rows) {
     console.log(`| ${row.id} | ${row.result} | \`${row.citation}\` | ${row.finding} |`);
   }
   console.log(
-    `\n### Judgment review (not run by this script)\n\nComplete J-ENGAGEMENT-BAIT, J-REPLY-BAIT, J-NEGATIVE-FEEDBACK-RISK, and J-DUPLICATE-RISK from references/rules.md when reviewing a draft via the skill.\n\n**Metadata check result: ${result}. This is not a reach prediction or a complete doors evaluation.**\n\n${FOOTER}`,
+    `\n### Judgment review (not run by this script)\n\nComplete J-ENGAGEMENT-BAIT, J-REPLY-BAIT, J-NEGATIVE-FEEDBACK-RISK, and J-DUPLICATE-RISK from references/rules.md when reviewing a draft via the skill.\n\n**Metadata check result: ${result}. This is not a reach prediction or a complete Job 1 evaluation.**\n\n${FOOTER}`,
   );
   return result;
 }
@@ -203,6 +211,9 @@ function selfTest() {
     ["unsafe-verdict.json", "FAIL"],
     ["known-label.json", "FAIL"],
     ["short-video.json", "FLAG"],
+    ["video-exactly-10000ms.json", "FLAG"],
+    ["video-10001ms.json", "PASS"],
+    ["video-plus-photo.json", "FLAG"],
   ];
   let ok = true;
   for (const [file, expected] of fixtures) {
@@ -213,7 +224,11 @@ function selfTest() {
     ok &&= pass;
     console.log(`${pass ? "PASS" : "FAIL"} ${file}: expected ${expected}, got ${got}`);
   }
-  console.log(ok ? "SELF-TEST PASS: 9 fixtures calibrated." : "SELF-TEST FAIL: fixture expectation mismatch.");
+  console.log(
+    ok
+      ? `SELF-TEST PASS: ${fixtures.length} fixtures calibrated.`
+      : "SELF-TEST FAIL: fixture expectation mismatch.",
+  );
   process.exit(ok ? 0 : 1);
 }
 

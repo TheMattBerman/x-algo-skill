@@ -1,0 +1,29 @@
+UNDER THE HOOD
+
+MATCHED
+
+MATCHED   DO_NOT_AMPLIFY
+          account label
+          The account label is DO_NOT_AMPLIFY.
+          The published drop is followers still see you, strangers do not.
+
+MATCHED   STRANGER DROP
+          effect text
+          Their words match a stranger-only hide.
+          Published labels that do this include DO_NOT_AMPLIFY,
+          ABUSIVE_HIGH_RECALL, and NSFW_HIGH_RECALL.
+          This kit cannot see which label you have. It can only name the match.
+
+UNMATCHED
+
+NO FILE   visibility score
+          No published match. The open code does not name this.
+          Stop. Do not invent a score.
+
+HOW THIS WORKS
+Under the Hood is their words. This kit maps those words onto
+published files, filters, and weights. If a string has no match,
+that is the answer.
+Ask about any line.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

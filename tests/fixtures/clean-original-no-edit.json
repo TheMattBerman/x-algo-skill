@@ -1,0 +1,13 @@
+{
+  "text": "just shipped a tiny CLI that turns any github repo into a single markdown file for pasting into an LLM. 200 lines of python, no deps.",
+  "postType": "original",
+  "followers": 5000,
+  "views": 0,
+  "likes": 0,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "media": null,
+  "expectedJudgment": "none flagged.",
+  "expectedEdit": "no-edit"
+}

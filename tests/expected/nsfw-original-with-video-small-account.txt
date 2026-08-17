@@ -1,0 +1,61 @@
+WHERE IT CAN SHOW UP
+
+CLOSED    Strangers' For You (Phoenix retrieval)
+          An NSFW mark keeps this out of the one-like file people who do not
+          follow you are published to see.
+          (phoenixRankAllCandidateProcessor.strato:438-440)
+
+CLOSED    People who liked things like this (SimClusters)
+          An NSFW-labelled author is dropped on this path for anyone who does
+          not already follow you.
+          (oon_nsfw_simclusters_filter.rs:19-23)
+
+UNPROVEN  Small-account shelf (tail)
+          Under 1,000 followers, a like plus any video writes this to a
+          small-account file about three minutes after you post. There is
+          a matching file this service knows how to load. Whether the For You
+          feed asks for it is a setting they did not publish.
+          (sid_tail_processor.rs:71-80; config/mod.rs:187;
+           retrieval_dataset.py:276-280; launch_inference.py:496-501)
+          Whether any one person sees this comes down to what they have been liking and replying to lately, which is on their side and nobody can read it from here.
+
+OPEN      People who follow you (Thunder)
+          Goes to people who follow you.
+          (thunder_source.rs:25-27, 30)
+
+X's safety flags
+UNKNOWN   X keeps these on their side. If one is set, none of the files
+          below get written. It only shows up here if you already got a
+          warning.
+          (phoenixRankAllCandidateProcessor.strato:438-440, 447;
+           eventProcessing.strato:246-265)
+
+WHAT FILES IT, AND FOR HOW LONG
+
+                                              written    searchable
+                                              and kept   on For You
+BLOCKED   Publish-time file (post_creation)   n/a       n/a
+            An NSFW mark skips these files before they are written.
+            (strato:438-440)
+BLOCKED   One-like file (1fav)                n/a       n/a
+            An NSFW mark skips these files before they are written.
+            (strato:438-440)
+BLOCKED   Thirty-two-like file (32fav)        n/a       n/a
+            An NSFW mark skips these files before they are written.
+            (strato:438-440)
+UNPROVEN  Small-account file (tail)           24 h      not published
+            (sid_tail_processor.rs:71-80; config/mod.rs:187; retrieval_dataset.py:276-280)
+UNPROVEN  Video files (nsfw_video)            kept      up to 48 h if the video files are switched on, which is not published
+            (eventProcessing.strato:24, 389-404; retrieval_dataset.py:256-260; age_filter.rs:16-20)
+
+ONCE IT IS IN THE RUNNING
+One post per request gets pulled up to slot 15, and it has to already be in the top 85 percent of what got scored. Nobody can see that before you post.
+(author_cold_start.rs:86-91; :130-138; :165-179; param.rs:621-656)
+
+Judgment: none flagged.
+
+The one edit: If you marked this NSFW, take the mark off. Opens a path to more reach (Phoenix retrieval).
+
+Rewrite: see the pasted draft.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

@@ -1,0 +1,167 @@
+{
+  "source_commit": "a389166",
+  "clone_paths": {
+    "window_configs": "phoenix-rankall/src/config/mod.rs",
+    "retrieval_dataset": "phoenix/xrex/data/retrieval_dataset.py",
+    "default_runner": "phoenix/xrex/inference/model_runner.py",
+    "default_cli": "phoenix/xrex/inference/launch_inference.py"
+  },
+  "published_default_datasets": ["HOME"],
+  "retrieval_dataset": [
+    {"member": "PAD", "value": 0, "artifact": null, "line": "230"},
+    {"member": "HOME", "value": 1, "artifact": "post_sid_v5_256x6_snapshots/1fav_1day.parquet", "index_names": ["1fav"], "default": true, "line": "231-235"},
+    {"member": "IMMERSIVE2Day", "value": 2, "artifact": "post_sid_v5_256x6_snapshots/video_2day.parquet", "index_names": ["video"], "default": false, "line": "236-240"},
+    {"member": "RELEVANT_ADS", "value": 3, "artifact": "ads", "index_names": [], "default": false, "line": "241-245"},
+    {"member": "CAROUSEL_ADS", "value": 4, "artifact": "ads", "index_names": [], "default": false, "line": "246-250"},
+    {"member": "EVERGREEN", "value": 5, "artifact": "evergreen_video_1825day.parquet", "index_names": ["evergreen_video"], "default": false, "line": "251-255"},
+    {"member": "IMMERSIVENSFW", "value": 6, "artifact": "nsfw_video_2day.parquet", "index_names": ["nsfw_video"], "default": false, "line": "256-260"},
+    {"member": "ACTIVE_ADS", "value": 7, "artifact": "ads", "index_names": [], "default": false, "line": "261-265"},
+    {"member": "IMMERSIVE4Day", "value": 8, "artifact": "video_4day.parquet", "index_names": ["video"], "default": false, "line": "266-270"},
+    {"member": "IMAGINE", "value": 9, "artifact": "imagine_4day.parquet", "index_names": ["imagine"], "default": false, "line": "271-275"},
+    {"member": "TAIL", "value": 10, "artifact": "post_sid_v5_256x6_tail_snapshots/tail_1day.parquet", "index_names": ["tail"], "default": false, "line": "276-280"},
+    {"member": "DPA_PRODUCTS", "value": 11, "artifact": "products", "index_names": [], "default": false, "line": "281-285"}
+  ],
+  "indexes": [
+    {
+      "name": "post_creation",
+      "entry_event": "PostCreation",
+      "gate": "exclusion block only, no like",
+      "dump_windows_h": [24],
+      "pipeline": "Main",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "strato:266-273, 469; config/mod.rs:142"
+    },
+    {
+      "name": "1fav",
+      "entry_event": "Fav",
+      "gate": "favoriteCount >= 1",
+      "dump_windows_h": [24, 48],
+      "pipeline": "Main; 24 in Topic and Sid",
+      "serving_dataset": "HOME",
+      "searchable_on_for_you": "up to 48 h",
+      "cite": "strato:78-92; config/mod.rs:143-144, 158, 177; retrieval_dataset.py:231-235"
+    },
+    {
+      "name": "32fav",
+      "entry_event": "Fav",
+      "gate": "favoriteCount >= 32",
+      "dump_windows_h": [24],
+      "pipeline": "Main",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "strato:62-76; config/mod.rs:145"
+    },
+    {
+      "name": "video",
+      "entry_event": "Fav or PostCreation",
+      "gate": "hasValidImmersiveVideo",
+      "dump_windows_h": [48, 96, 168, 336, 720],
+      "pipeline": "Main, Sid",
+      "serving_dataset": "IMMERSIVE2Day, IMMERSIVE4Day",
+      "searchable_on_for_you": "not published",
+      "cite": "strato:276-288, 463, 471; config/mod.rs:146-150, 178-179"
+    },
+    {
+      "name": "nsfw_video",
+      "entry_event": "Fav",
+      "gate": "NSFW and hasValidImmersiveVideo",
+      "dump_windows_h": [48, 168],
+      "pipeline": "Main, Sid",
+      "serving_dataset": "IMMERSIVENSFW",
+      "searchable_on_for_you": "not published",
+      "cite": "strato:290-305, 449; config/mod.rs:151-152, 180-182"
+    },
+    {
+      "name": "evergreen_video",
+      "entry_event": "EvergreenVideo",
+      "gate": "hasImmersiveVideo, no duration test",
+      "dump_windows_h": [43800],
+      "pipeline": "Main, Sid",
+      "serving_dataset": "EVERGREEN",
+      "searchable_on_for_you": "not published",
+      "cite": "strato:26-35; config/mod.rs:153, 183"
+    },
+    {
+      "name": "evergreen_nsfw_video",
+      "entry_event": "EvergreenNsfwVideo",
+      "gate": "hasImmersiveVideo, no duration test",
+      "dump_windows_h": [43800],
+      "pipeline": "Main",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "config/mod.rs:154"
+    },
+    {
+      "name": "evergreen_video_grok",
+      "entry_event": "producer not in repo",
+      "gate": "unknown",
+      "dump_windows_h": [720],
+      "pipeline": "Main, Sid",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "config/mod.rs:155, 185"
+    },
+    {
+      "name": "1fav_topic",
+      "entry_event": "Fav",
+      "gate": "exclusion block, >= 1 fav, non-empty filtered topic set",
+      "dump_windows_h": [24],
+      "pipeline": "Topic",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "strato:119-215, 216, 460; config/mod.rs:159-165"
+    },
+    {
+      "name": "imagine",
+      "entry_event": "Fav",
+      "gate": "immersive video and a Grok grokPostId",
+      "dump_windows_h": [96],
+      "pipeline": "Sid",
+      "serving_dataset": "IMAGINE",
+      "searchable_on_for_you": "not published",
+      "cite": "strato:307-320, 464; config/mod.rs:184"
+    },
+    {
+      "name": "tail",
+      "entry_event": "metadata dump",
+      "gate": "index_name == metadata, followers strictly < 1000, no like",
+      "dump_windows_h": [24],
+      "pipeline": "SidTail",
+      "serving_dataset": "TAIL",
+      "searchable_on_for_you": "not published",
+      "cite": "sid_tail_processor.rs:71-80; config/mod.rs:187; retrieval_dataset.py:276-280"
+    },
+    {
+      "name": "metadata",
+      "entry_event": "Fav or PostCreation, plus the NSFW escape",
+      "gate": "see how-reach-works.md NSFW escapes",
+      "dump_windows_h": [24, 48, 72],
+      "pipeline": "Metadata",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "strato:321-340, 450, 466, 473; config/mod.rs:167-169"
+    },
+    {
+      "name": "search_unfiltered",
+      "entry_event": "Fav",
+      "gate": "non-community, non-repost, >= 1 fav. Replies and NSFW allowed",
+      "dump_windows_h": [],
+      "pipeline": "none",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "cite": "strato:46-60, 433-435"
+    },
+    {
+      "name": "mm_emb_metadata",
+      "entry_event": "Fav",
+      "gate": "exclusion block",
+      "dump_windows_h": [24, 48, 96],
+      "pipeline": "MmMetadata, unimplemented",
+      "serving_dataset": null,
+      "searchable_on_for_you": "not published",
+      "implemented": false,
+      "cite": "config/mod.rs:171-175; is_implemented :127-133"
+    }
+  ]
+}

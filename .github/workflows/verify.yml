@@ -1,0 +1,29 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  kit-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Pin x-algorithm clone
+        run: |
+          git clone --depth 1 https://github.com/xai-org/x-algorithm.git /tmp/x-algorithm
+          git -C /tmp/x-algorithm fetch --depth 1 origin a389166
+          git -C /tmp/x-algorithm checkout a389166
+      - name: Language gate
+        run: node scripts/check-language.mjs
+      - name: Metadata self-test
+        run: node scripts/check-metadata.mjs --self-test
+      - name: Snapshots
+        run: node scripts/snapshot-fixtures.mjs
+      - name: Reader enumeration
+        run: X_ALGORITHM_CLONE=/tmp/x-algorithm node scripts/enumerate-stranger-sources.mjs
+      - name: Citation open
+        run: X_ALGORITHM_CLONE=/tmp/x-algorithm node scripts/verify-citations.mjs

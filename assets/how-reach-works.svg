@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="420" viewBox="0 0 1080 420">
+  <title>How reach works</title>
+  <desc>Three layers: sources, files, then in-slate modifiers. A writer is not a reader.</desc>
+  <rect width="1080" height="420" fill="#111111"/>
+  <text x="36" y="42" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="18">three layers</text>
+  <text x="36" y="70" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">paste a draft. find out if people who do not follow you can see it.</text>
+
+  <rect x="36" y="100" width="320" height="230" fill="none" stroke="#5a5a5a"/>
+  <rect x="46" y="91" width="210" height="18" fill="#111111"/>
+  <text x="50" y="105" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14"> A  where it can show up </text>
+  <text x="50" y="140" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">thunder</text>
+  <text x="50" y="160" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">followers only</text>
+  <text x="50" y="188" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">phoenix retrieval</text>
+  <text x="50" y="208" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">pending one like</text>
+  <text x="50" y="236" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">simclusters</text>
+  <text x="50" y="256" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">pending 8 likes</text>
+  <text x="50" y="284" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">tail</text>
+  <text x="50" y="304" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">unproven on for you</text>
+
+  <rect x="380" y="100" width="320" height="230" fill="none" stroke="#5a5a5a"/>
+  <rect x="390" y="91" width="200" height="18" fill="#111111"/>
+  <text x="394" y="105" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14"> B  what files it </text>
+  <text x="394" y="140" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">publish-time file</text>
+  <text x="394" y="160" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">written. not published as searched</text>
+  <text x="394" y="188" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">one-like file</text>
+  <text x="394" y="208" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">the default searched corpus</text>
+  <text x="394" y="236" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">feed age cut</text>
+  <text x="394" y="256" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">48 hours. no video exemption</text>
+  <text x="394" y="284" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">safety flags</text>
+  <text x="394" y="304" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">unknown unless you were warned</text>
+
+  <rect x="724" y="100" width="320" height="230" fill="none" stroke="#5a5a5a"/>
+  <rect x="734" y="91" width="270" height="18" fill="#111111"/>
+  <text x="738" y="105" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14"> C  once it is in the running </text>
+  <text x="738" y="140" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">printed only if it fired</text>
+  <text x="738" y="160" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">omitted entirely otherwise</text>
+  <text x="738" y="188" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">cold start</text>
+  <text x="738" y="208" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">&lt;= 1000 followers. not tail</text>
+  <text x="738" y="236" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">same-scroll decay</text>
+  <text x="738" y="256" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">62.5% then 43.75%. per refresh</text>
+  <text x="738" y="284" fill="#e8e8e8" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="14">reply / repost weight</text>
+  <text x="738" y="304" fill="#a0a0a0" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">three quarters, even to followers</text>
+
+  <text x="36" y="370" fill="#6b6b6b" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13">This reads the code they published, not the live knobs they can turn on you tomorrow.</text>
+  <text x="1044" y="370" fill="#6b6b6b" font-family="Menlo, Monaco, SF Mono, Consolas, monospace" font-size="13" text-anchor="end">@themattberman</text>
+</svg>

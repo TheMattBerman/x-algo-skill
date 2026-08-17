@@ -1,0 +1,13 @@
+{
+  "text": "Five seconds of the setup.",
+  "postType": "original",
+  "followers": 400,
+  "likes": 1,
+  "nsfw": true,
+  "media": "video",
+  "videoDurationMs": 5000,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "expectedJudgment": "none flagged."
+}

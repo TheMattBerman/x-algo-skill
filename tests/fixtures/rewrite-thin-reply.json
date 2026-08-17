@@ -1,0 +1,19 @@
+{
+  "product": "rewrite",
+  "job": 1,
+  "text": "yes this. the part about retrieval indexes.",
+  "postType": "reply",
+  "reply": true,
+  "followers": 5000,
+  "expectedEdit": "leave-reply",
+  "expectedPhrases": [
+    "REWRITE",
+    "Leave this a reply",
+    "THE ONE CHANGE"
+  ],
+  "forbiddenPhrases": [
+    "SEND",
+    "FOLLOW",
+    "WHERE IT CAN SHOW UP"
+  ]
+}

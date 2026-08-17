@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * X algorithm cheat sheet — SVG pages, zero dependencies.
+ * X algorithm cheat sheet. SVG pages, zero dependencies.
  * Character-cell layout. No HTML, no Puppeteer, no color accent.
  */
 const fs = require("fs");
@@ -198,98 +198,72 @@ function page1() {
   const innerW = W - PAD * 2;
   const maxChars = Math.floor((innerW - 28) / CW);
   const kicker = wrap(
-    "will this post get seen? five retrieval sources fill a top-50. then visibility filtering can void all five. every call is a yes or no in x's published code, cited to the line.",
+    "paste a draft. find out if people who do not already follow you can see it, or if you locked it to followers only. then the one change that opens that up.",
     Math.floor(innerW / CW)
   );
 
-  const doors = [
+  const layers = [
     {
-      title: "your followers",
-      state: "always on",
+      title: "where it can show up",
+      state: "layer A",
       items: [
-        "thunder. open by default. replies and reposts still served, at 0.75",
-        "50 most recent originals, 30 most recent replies",
-        "2-day retention. feed age gate is 48h",
-      ],
-      cites: ["thunder/config.rs:5-6 · thunder/args.rs:48-49 · config.rs:36"],
-    },
-    {
-      title: "a bump while you're small",
-      state: "under 1k only",
-      items: [
-        "cold start. original only. not a reply or repost",
-        "author followers <= 1000. views < 1000",
-        "pending: top 85% of the non-zero pool, per request. bottom 15% ineligible",
-      ],
-      cites: ["author_cold_start.rs:86-91, 167-189 · param.rs:620-663"],
-    },
-    {
-      title: "strangers' for you",
-      state: "originals only",
-      items: [
-        "phoenix retrieval. hard-closed for replies, reposts, and community posts",
-        {
-          text: "pending a post-publish like",
-          kids: ["first like → 1fav index", "32 likes → 32fav index"],
-        },
-        "text retention 24h and 48h",
+        "people who follow you (thunder). open by default. replies and reposts still served, at 0.75",
+        "strangers' for you (phoenix retrieval). pending one like. replies, reposts, community posts: no path",
+        "people who liked things like this (simclusters). pending 8 likes, plus viewer history nobody can see. replies and reposts closed",
+        "small-account shelf (tail). written under 1,000 followers with no like. whether for you asks for it is not published",
       ],
       cites: [
-        "phoenixRankAllCandidateProcessor.strato:441-446, 62-92",
-        "oon_retweet_reply_filter.rs:13-18",
+        "thunder_source.rs:25-27, 30 · phoenix_source.rs:62-67",
+        "simclusters_source.rs:88-93 · retrieval_dataset.py:229-235 · model_runner.py:543",
       ],
     },
     {
-      title: "people already into this",
-      state: "8 likes",
+      title: "x's safety flags",
+      state: "precondition",
       items: [
-        "simclusters. pending 8 likes for a persistent embedding",
-        "ann drops anything under 0.5",
-        "8-hour half-life — the only real engagement half-life in the release",
-      ],
-      cites: ["Configs.scala:39, 65 · simclusters_source.rs:35"],
-    },
-    {
-      title: "still findable next month",
-      state: "video > 10s",
-      items: [
-        "video long tail. requires video. text falls out of retrieval in 24 to 48 hours",
-        "video windows: 48 / 96 / 168 / 336 / 720h need duration strictly > 10,000 ms (exactly 10,000 ms is excluded)",
-        "nsfw_video windows are only 48h and 168h (same duration gate; not the 96/336/720h set)",
-        "evergreen video sits 5 years; those index writers check media type only, not duration",
-        "VQV weight credit is a separate >10,000 ms gate",
+        "unknown unless you already got a warning. never inferred from text",
+        "if a flag is set, none of the files below get written. it only shows up here if you already got a warning",
       ],
       cites: [
-        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:146-156",
-        "param.rs:677-682",
+        "phoenixRankAllCandidateProcessor.strato:438-440, 447",
+        "eventProcessing.strato:246-265",
       ],
+    },
+    {
+      title: "what files it, and for how long",
+      state: "layer B",
+      items: [
+        "publish-time file: written 24h. no published corpus names it",
+        "one-like file: written 24h and 48h. the only file a stranger's for you request is published to search. feed still cuts at 48h",
+        "thirty-two-like file: written 24h. no published corpus names it",
+        "video files: kept on their side. searchable on for you only if those files are switched on, which is not published. feed still cuts at 48h",
+      ],
+      cites: [
+        "strato:266-273, 78-92, 62-76 · retrieval_dataset.py:229-285",
+        "age_filter.rs:16-20 · config.rs:36",
+      ],
+    },
+    {
+      title: "once it is in the running",
+      state: "layer C",
+      items: [
+        "printed only when a modifier fires. omitted entirely otherwise",
+        "cold start: original or quote, followers <= 1000, views < 1000. one post pulled toward slot 15 if it is already in the top 85 percent",
+        "author diversity: second post in the same scroll keeps 62.5 percent. per refresh, never per day",
+      ],
+      cites: ["author_cold_start.rs:86-91, 165-179 · ranking_scorer.rs:614-616"],
     },
   ];
 
-  const kill = {
-    title: "the kill switch",
-    state: "runs last",
-    items: [
-      "visibility filtering. not a door you open",
-      "28 rules run for everyone. 26 more run for people who do not follow you",
-      "runs after top-50 selection, so a labeled post can take a slot and then vanish",
-      "labels are set membership only: score, expiry, country, and holdback are discarded",
-    ],
-    cites: [
-      "phoenix_candidate_pipeline.rs:398-421 · registry.rs:101-170",
-      "safety_labels.rs:21-28",
-    ],
-  };
-
   const parts = [];
-  const head = header("THE SIX DOORS", kicker);
+  const head = header("HOW REACH WORKS", kicker);
   parts.push(head.svg);
   let y = head.y;
 
-  parts.push(sectionRule(PAD, y, innerW, "FIVE WAYS IN"));
+  parts.push(sectionRule(PAD, y, innerW, "THREE LAYERS"));
   y += 18;
   const flow = wrap(
-    "thunder → cold start → phoenix retrieval → simclusters → video long tail → TopKScoreSelector keeps 50",
+    "sources decide if a request can reach the post. files decide what that request searches. modifiers change standing inside a slate that already has it.",
     Math.floor(innerW / CW)
   );
   for (const ln of flow) {
@@ -298,7 +272,7 @@ function page1() {
   }
   y += 8;
 
-  for (const d of doors) {
+  for (const d of layers) {
     const body = bullets(d.items, maxChars);
     const cites = wrapAll(d.cites, maxChars);
     const h = measure(body, cites);
@@ -306,23 +280,13 @@ function page1() {
     y += h + 14;
   }
 
-  y += 4;
-  const cx = W / 2;
-  parts.push(line(cx, y, cx, y + 18));
-  parts.push(text(cx, y + 36, "▼ after the top-50 is selected", { fill: MID, anchor: "middle" }));
-  y += 52;
-
-  parts.push(sectionRule(PAD, y, innerW, "THEN ONE WAY OUT"));
-  y += 20;
-  {
-    const body = bullets(kill.items, maxChars);
-    const cites = wrapAll(kill.cites, maxChars);
-    const h = measure(body, cites);
-    parts.push(titledBox(PAD, y, innerW, h, kill.title, kill.state, body, cites));
-    y += h + 24;
-  }
-
-  parts.push(footer(y, "five ways in. one kill switch after the fifty."));
+  y += 8;
+  parts.push(
+    footer(
+      y,
+      "a writer is not a reader. cite the reader for every path to a stranger."
+    )
+  );
   const h = y + 50;
   return { svg: svgDoc(h, parts.join("\n  ")), h };
 }
@@ -367,7 +331,7 @@ function page2() {
   const headerLine = padRow("action", "weight", "cite", actionW, weightW);
   const colChars = Math.max(24, Math.floor((innerW / 2 - 28) / CW));
   const caveatText =
-    "the weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). those weights multiply a predicted chance this viewer does the thing, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts. the magnitude of the report weight is 468x the like weight (|-234.0| / 0.5). a predicted report of 0.01 is not 468 likes. mute is priced worse than block.";
+    "the weight on a copy-link share is 40x the weight on a like (20.0 / 0.5). those weights multiply a predicted action from this viewer, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts. the magnitude of the report weight is 468x the like weight (|-234.0| / 0.5). a predicted report of 0.01 is not 468 likes. mute is priced worse than block.";
   const caveatCol = wrap(caveatText, colChars);
   const posLines = [
     "weights",
@@ -411,7 +375,6 @@ function page2() {
     ...bullets(
       [
         "author diversity: per request / per refresh multipliers 1.0 / 0.625 / 0.4375 / 0.34375, floor 0.25. never per day",
-        "dpp near-duplicate: unselected candidates scored 0.0 at theta 0.65",
         "retweet dedup: keeps first arrival in source order, not best",
         "negative compression: net-negative posts squeezed into [0, 0.001] and sort under everything that isn't hated",
       ],
@@ -420,13 +383,13 @@ function page2() {
   ];
   const modCites = wrapAll(
     [
-      "ranking_scorer.rs:614-616 · param.rs:222-239 · dpp_model.rs:147-150",
-      "param.rs:608-619 · retweet_deduplication_filter.rs:19-26 · ranking_scorer.rs:525-533 · config.rs:40",
+      "ranking_scorer.rs:614-616 · param.rs:222-239",
+      "retweet_deduplication_filter.rs:19-26 · ranking_scorer.rs:525-533 · config.rs:40",
     ],
     maxChars
   );
   const modH = measure(modLines, modCites);
-  parts.push(titledBox(PAD, y, innerW, modH, "do not open or close a door", null, modLines, modCites));
+  parts.push(titledBox(PAD, y, innerW, modH, "change standing inside a slate", null, modLines, modCites));
   y += modH + 14;
 
   const boost = wrap(
@@ -462,7 +425,7 @@ function page3() {
     {
       title: "1  write the post someone would copy and send",
       items: [
-        "copy-link is weighted 20.0. a follow is weighted 4.0. a like is 0.5. the weight on a copy-link share is 40x the weight on a like. those weights multiply a predicted chance this viewer does the thing, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts.",
+        "copy-link is weighted 20.0. a follow is weighted 4.0. a like is 0.5. the weight on a copy-link share is 40x the weight on a like. those weights multiply a predicted action from this viewer, and the file says the sizes reflect how rare the action is, not an exchange rate in real hearts.",
       ],
       cites: ["param.rs:279-281, 282, 325-330, 345-350"],
     },
@@ -474,9 +437,9 @@ function page3() {
       cites: ["param.rs:284-289 · ranking_scorer.rs:180-193"],
     },
     {
-      title: "3  if you want strangers, post an original",
+      title: "3  if you want more reach, post an original",
       items: [
-        "a reply never enters the stranger index. neither does a repost or a community post. even your own followers see a reply or a repost at 0.75 of the usual weight.",
+        "a reply can circulate for a moment. it has no published path to pick up new distribution. neither does a repost or a community post. even your own followers see a reply or a repost at 0.75 of the usual weight.",
       ],
       cites: [
         "phoenixRankAllCandidateProcessor.strato:441-446",
@@ -491,19 +454,19 @@ function page3() {
       cites: ["ranking_scorer.rs:614-616 · param.rs:222-239"],
     },
     {
-      title: "5  make it video. longer than 10 seconds",
+      title: "5  video longer than 10 seconds can enter extra files. the feed still drops it at 48 hours",
       items: [
-        "if it needs to live past tuesday: text drops out of retrieval in 24 to 48 hours. video windows 48 / 96 / 168 / 336 / 720h require duration strictly > 10,000 ms. nsfw_video is only 48h and 168h. evergreen video sits 5 years; those index writers check media type only, not duration. VQV weight credit is a separate >10,000 ms gate.",
+        "publishing writes a 24-hour file. one like is the published ticket into the one file the default For You search loads. the feed still cuts at 48 hours, video included. qualifying video needs duration strictly greater than 10,000 ms. whether the feed asks for the video files is not published. VQV weight credit is a separate greater-than-10,000 ms gate.",
       ],
       cites: [
-        "eventProcessing.strato:24, 389-405 · phoenix-rankall/src/config/mod.rs:146-156",
-        "param.rs:677-682",
+        "eventProcessing.strato:24, 389-404 · retrieval_dataset.py:231-235",
+        "age_filter.rs:16-20 · param.rs:677-682",
       ],
     },
     {
-      title: "6  treat one bad label like it can close every stranger door",
+      title: "6  treat one bad label like it can close every stranger path",
       items: [
-        "28 rules run on everybody. 26 more run on people who do not follow you. a labeled post can take a top-50 slot and then vanish. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. BAD url (gate: chain MATCHES .*BAD) applies SPAM or SPAM_HIGH_RECALL; LOW_QUALITY is a separate rule — any hop in the redirect chain applies SPAM_HIGH_RECALL. pin a bad or low-quality url and the account gets SPAM_HIGH_RECALL for 7 days; that check re-runs on every follow you perform. OneWeekInSecs is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.",
+        "visibility filtering runs at index time. if a flag is set, none of the files below get written. 28 rules run on everybody. 26 more run on people who do not follow you. an unsafe url writes four drop labels at once, and a verdict change relabels old posts. BAD url (gate: chain MATCHES .*BAD) applies SPAM or SPAM_HIGH_RECALL; LOW_QUALITY is a separate rule. any hop in the redirect chain applies SPAM_HIGH_RECALL. pin a bad or low-quality url and the account gets SPAM_HIGH_RECALL for 7 days; that check re-runs on every follow you perform. OneWeekInSecs is a botmaker DSL builtin not defined in the repo, so 7 days is implied by the constant name.",
       ],
       cites: [
         "registry.rs:101-170 · PinnedLowQualityOrBadUrl.bot:8-41",

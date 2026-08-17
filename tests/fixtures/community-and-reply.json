@@ -1,0 +1,11 @@
+{
+  "text": "Replying inside the community thread.",
+  "postType": "community",
+  "community": true,
+  "reply": true,
+  "followers": 5000,
+  "labels": [],
+  "repost": false,
+  "media": null,
+  "expectedJudgment": "none flagged."
+}

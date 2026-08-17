@@ -1,0 +1,54 @@
+WHERE IT CAN SHOW UP
+
+CLOSED    Strangers' For You (Phoenix retrieval)
+          This can circulate for a moment. It has no published path to pick
+          up new distribution.
+          Replies are never written to any of these files at all.
+          Not a slower path, no path.
+          (phoenixRankAllCandidateProcessor.strato:437, 443-444)
+
+CLOSED    People who liked things like this (SimClusters)
+          Replies are thrown out before scoring on this path, so it never
+          reaches anyone who does not already follow you.
+          (oon_retweet_reply_filter.rs:13-18)
+
+OPEN      People who follow you (Thunder)
+          Goes to people who follow you, but at three quarters the weight
+          because it is a reply.
+          (param.rs:246-251; ranking_scorer.rs:747-754)
+
+X's safety flags
+UNKNOWN   X keeps these on their side. If one is set, none of the files
+          below get written. It only shows up here if you already got a
+          warning.
+          (phoenixRankAllCandidateProcessor.strato:438-440, 447;
+           eventProcessing.strato:246-265)
+
+WHAT FILES IT, AND FOR HOW LONG
+
+                                              written    searchable
+                                              and kept   on For You
+BLOCKED   Publish-time file (post_creation)   n/a       n/a
+            Replies are skipped before any of these files are written.
+            (strato:437, 443-444)
+BLOCKED   One-like file (1fav)                n/a       n/a
+            Replies are skipped before any of these files are written.
+            (strato:437, 443-444)
+BLOCKED   Thirty-two-like file (32fav)        n/a       n/a
+            Replies are skipped before any of these files are written.
+            (strato:437, 443-444)
+BLOCKED   Video files (video)                 n/a       n/a
+            Replies are skipped before any of these files are written.
+            (strato:437, 443-444)
+
+ONCE IT IS IN THE RUNNING
+Served at three quarters weight even to people who follow you.
+(param.rs:246-251; ranking_scorer.rs:747-754)
+
+Judgment: none flagged.
+
+The one edit: Post this as an original on your timeline, not a reply. Opens a path to more reach (Phoenix retrieval).
+
+Rewrite: see the pasted draft.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

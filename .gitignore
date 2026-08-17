@@ -39,3 +39,4 @@ htmlcov/
 *.pem
 *.key
 cmux-assets/
+.review/

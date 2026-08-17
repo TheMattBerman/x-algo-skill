@@ -1,0 +1,11 @@
+{
+  "text": "Agree with this. Adding one more example from last week.",
+  "postType": "reply",
+  "reply": true,
+  "followers": 5000,
+  "likes": 0,
+  "labels": [],
+  "repost": false,
+  "media": null,
+  "expectedJudgment": "none flagged."
+}

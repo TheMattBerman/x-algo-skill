@@ -41,16 +41,26 @@ for f in \
   CHANGELOG.md \
   install.sh \
   doctor.sh \
-  references/doors.md \
+  references/how-reach-works.md \
+  references/index-map.md \
+  references/index-map.json \
+  references/what-is-not-published.md \
   references/rules.md \
   references/verified-findings.md \
   references/creator-cheat-sheet.md \
-  scripts/check-metadata.mjs
+  scripts/check-metadata.mjs \
+  scripts/evaluate-reach.mjs \
+  scripts/evaluate-job4.mjs \
+  scripts/ingest-recent.sh \
+  scripts/verify-citations.mjs \
+  scripts/enumerate-stranger-sources.mjs \
+  scripts/check-language.mjs \
+  scripts/snapshot-fixtures.mjs
 do
   if [[ -f "${ROOT}/${f}" ]]; then
     ok "$f"
   else
-    bad "missing ${f} — restore it from the kit repo"
+    bad "missing ${f}. Restore it from the kit repo"
   fi
 done
 

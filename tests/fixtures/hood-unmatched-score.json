@@ -1,0 +1,16 @@
+{
+  "product": "hood",
+  "job": 5,
+  "readout": "visibility score 0.42\nvirality 88%",
+  "expectedPhrases": [
+    "UNDER THE HOOD",
+    "UNMATCHED",
+    "visibility score",
+    "No published match"
+  ],
+  "forbiddenPhrases": [
+    "WHERE IT CAN SHOW UP",
+    "NSFW_HIGH_RECALL",
+    "DO_NOT_AMPLIFY"
+  ]
+}

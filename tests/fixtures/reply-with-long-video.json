@@ -1,0 +1,11 @@
+{
+  "text": "Here is the clip that shows the whole setup.",
+  "postType": "reply",
+  "reply": true,
+  "followers": 5000,
+  "media": "video",
+  "videoDurationMs": 120000,
+  "labels": [],
+  "repost": false,
+  "expectedJudgment": "none flagged."
+}

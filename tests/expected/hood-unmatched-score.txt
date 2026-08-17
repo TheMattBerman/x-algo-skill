@@ -1,0 +1,21 @@
+UNDER THE HOOD
+
+UNMATCHED
+
+NO FILE   visibility score
+          No published match. The open code does not name this.
+          Stop. Do not invent a score.
+NO FILE   virality
+          No published match. The open code does not name this.
+          Stop. Do not invent a score.
+NO FILE   percentage
+          No published match. The open code does not name this.
+          Stop. Do not invent a score.
+
+HOW THIS WORKS
+Under the Hood is their words. This kit maps those words onto
+published files, filters, and weights. If a string has no match,
+that is the answer.
+Ask about any line.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

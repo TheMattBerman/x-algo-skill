@@ -1,0 +1,16 @@
+{
+  "product": "hood",
+  "job": 5,
+  "readout": "Account labels\nDO_NOT_AMPLIFY\nHidden from recommendations to non-followers.\nvisibility score 0.19",
+  "expectedPhrases": [
+    "UNDER THE HOOD",
+    "MATCHED",
+    "DO_NOT_AMPLIFY",
+    "UNMATCHED",
+    "visibility score",
+    "No published match"
+  ],
+  "forbiddenPhrases": [
+    "WHERE IT CAN SHOW UP"
+  ]
+}

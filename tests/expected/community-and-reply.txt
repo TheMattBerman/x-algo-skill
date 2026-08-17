@@ -1,0 +1,44 @@
+WHERE IT CAN SHOW UP
+
+The kit models the For You path and the topics surface, not community timelines.
+          (thunder_source.rs:25-27, 30)
+
+CLOSED    Strangers' For You (Phoenix retrieval)
+          This can circulate for a moment. It has no published path to pick
+          up new distribution.
+          Community posts are never written to any of these files at all.
+          Not a slower path, no path.
+          (phoenixRankAllCandidateProcessor.strato:430, 441-442)
+
+CLOSED    People who liked things like this (SimClusters)
+          Community posts are thrown out before scoring on this path, so it never
+          reaches anyone who does not already follow you.
+          (oon_retweet_reply_filter.rs:13-18)
+
+X's safety flags
+UNKNOWN   X keeps these on their side. If one is set, none of the files
+          below get written. It only shows up here if you already got a
+          warning.
+          (phoenixRankAllCandidateProcessor.strato:438-440, 447;
+           eventProcessing.strato:246-265)
+
+WHAT FILES IT, AND FOR HOW LONG
+
+                                              written    searchable
+                                              and kept   on For You
+BLOCKED   Publish-time file (post_creation)   n/a       n/a
+            Community posts are skipped before any of these files are written.
+            (strato:430, 441-442)
+BLOCKED   One-like file (1fav)                n/a       n/a
+            Community posts are skipped before any of these files are written.
+            (strato:430, 441-442)
+BLOCKED   Thirty-two-like file (32fav)        n/a       n/a
+            Community posts are skipped before any of these files are written.
+            (strato:430, 441-442)
+n/a       No video, so the video files do not apply: video, nsfw_video, evergreen video.
+
+Judgment: none flagged.
+
+No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply, repost, or community post (would keep it out of the wider-distribution file), an NSFW mark (same), a clip already in the draft at or under 10 seconds or sitting next to a photo (would keep it off the video files), bait that asks people to like or tag, or a restriction notice from X.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

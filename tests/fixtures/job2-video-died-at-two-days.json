@@ -1,0 +1,14 @@
+{
+  "text": "The walkthrough clip from Tuesday.",
+  "postType": "original",
+  "job": 2,
+  "symptom": "video-died-at-two-days",
+  "followers": 5000,
+  "media": "video",
+  "videoDurationMs": 45000,
+  "likes": 12,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "expectedJudgment": "none flagged."
+}

@@ -1,0 +1,13 @@
+{
+  "text": "Just over ten seconds of the setup.",
+  "postType": "original",
+  "followers": 5000,
+  "media": "video",
+  "videoDurationMs": 10001,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "urlVerdict": null,
+  "expectedJudgment": "none flagged.",
+  "expectedEdit": "no-edit"
+}

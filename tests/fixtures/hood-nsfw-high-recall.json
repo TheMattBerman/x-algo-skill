@@ -1,0 +1,15 @@
+{
+  "product": "hood",
+  "job": 5,
+  "readout": "NSFW_HIGH_RECALL\nHidden from recommendations to non-followers and from underage users, users without a stated age, and logged out users.",
+  "expectedPhrases": [
+    "UNDER THE HOOD",
+    "MATCHED",
+    "NSFW_HIGH_RECALL",
+    "Followers can still see you"
+  ],
+  "forbiddenPhrases": [
+    "WHERE IT CAN SHOW UP",
+    "visibility score"
+  ]
+}

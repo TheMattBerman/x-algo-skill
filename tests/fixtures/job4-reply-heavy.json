@@ -1,0 +1,112 @@
+{
+  "job": 4,
+  "now": "2026-08-17T18:00:00.000Z",
+  "handle": "demooperator",
+  "followers": 8200,
+  "ingest": "apify",
+  "pulls": ["profile", "with_replies"],
+  "expectedBlocks": ["CLOSED", "DO BETTER", "HOW THIS WORKS"],
+  "forbiddenBlocks": ["TAPE"],
+  "expectedPhrases": [
+    "replies",
+    "last 30",
+    "2 days",
+    "Paste that draft and Rewrite will check it"
+  ],
+  "forbiddenPhrases": ["Rewrite:", "stranger shelf"],
+  "posts": [
+    {
+      "id": "101",
+      "url": "https://x.com/demooperator/status/101",
+      "text": "The hook timing on Claude Code hooks is the whole game. Fire after the tool returns, not before.",
+      "createdAt": "2026-08-17T12:00:00.000Z",
+      "isReply": true,
+      "likeCount": 74,
+      "replyCount": 6,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "102",
+      "url": "https://x.com/demooperator/status/102",
+      "text": "Yes. Claude Code hooks that rewrite the user prompt after a failed tool call are the ones that stick.",
+      "createdAt": "2026-08-17T10:30:00.000Z",
+      "isReply": true,
+      "likeCount": 51,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "103",
+      "url": "https://x.com/demooperator/status/103",
+      "text": "Claude Code hooks also need a stop condition. Otherwise they loop the same repair forever.",
+      "createdAt": "2026-08-17T08:00:00.000Z",
+      "isReply": true,
+      "likeCount": 44,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "104",
+      "url": "https://x.com/demooperator/status/104",
+      "text": "People keep asking me for the Claude Code hooks snippet. It is sitting under this thread.",
+      "createdAt": "2026-08-16T22:00:00.000Z",
+      "isReply": true,
+      "likeCount": 38,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "105",
+      "url": "https://x.com/demooperator/status/105",
+      "text": "Same Claude Code hooks pattern works for Codex if you map the tool names.",
+      "createdAt": "2026-08-16T18:30:00.000Z",
+      "isReply": true,
+      "likeCount": 29,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "106",
+      "url": "https://x.com/demooperator/status/106",
+      "text": "Claude Code hooks are not magic. They are just a gate on when the model is allowed to speak.",
+      "createdAt": "2026-08-16T14:00:00.000Z",
+      "isReply": true,
+      "likeCount": 22,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "107",
+      "url": "https://x.com/demooperator/status/107",
+      "text": "If your Claude Code hooks file is 400 lines, you do not have hooks. You have a second agent.",
+      "createdAt": "2026-08-16T11:00:00.000Z",
+      "isReply": true,
+      "likeCount": 19,
+      "topic": "Claude Code hooks"
+    },
+    {
+      "id": "201",
+      "url": "https://x.com/demooperator/status/201",
+      "text": "Shipping kits this week. The README is the product.",
+      "createdAt": "2026-08-14T16:00:00.000Z",
+      "isReply": false,
+      "likeCount": 2,
+      "shape": "no-object",
+      "topic": "shipping kits"
+    },
+    {
+      "id": "202",
+      "url": "https://x.com/demooperator/status/202",
+      "text": "Another note on shipping kits. Version numbers are a promise.",
+      "createdAt": "2026-08-13T15:00:00.000Z",
+      "isReply": false,
+      "likeCount": 0,
+      "shape": "no-object",
+      "topic": "shipping kits"
+    },
+    {
+      "id": "108",
+      "url": "https://x.com/demooperator/status/108",
+      "text": "Agree on Claude Code hooks. PreToolUse is where the real leverage is.",
+      "createdAt": "2026-08-15T20:00:00.000Z",
+      "isReply": true,
+      "likeCount": 17,
+      "topic": "Claude Code hooks"
+    }
+  ]
+}

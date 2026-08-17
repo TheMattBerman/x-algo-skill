@@ -1,0 +1,13 @@
+{
+  "text": "A clean original that X already hid.",
+  "postType": "original",
+  "followers": 400,
+  "likes": 0,
+  "vfDropped": true,
+  "nsfw": false,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "media": null,
+  "expectedJudgment": "none flagged."
+}

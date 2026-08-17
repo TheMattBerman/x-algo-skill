@@ -1,0 +1,46 @@
+WHERE IT CAN SHOW UP
+
+PENDING   Strangers' For You (Phoenix retrieval)
+          The first like is the published ticket into wider distribution.
+          Followers can see it as soon as you post. That is the floor.
+          X writes a file when you publish. They never published that anyone
+          looks there.
+          (retrieval_dataset.py:229-235; model_runner.py:543;
+           launch_inference.py:496-501; strato:266-273, 469)
+          Whether any one person sees this comes down to what they have been liking and replying to lately, which is on their side and nobody can read it from here.
+
+PENDING   People who liked things like this (SimClusters)
+          Needs 8 likes before X builds a lasting picture of who this post
+          is for. On top of that it only runs for viewers who already like
+          and reply to things, or who dwell and click on them, and nobody
+          can see that from here.
+          (Configs.scala:65; simclusters_source.rs:88-93, 139-147)
+
+OPEN      People who follow you (Thunder)
+          Goes to people who follow you.
+          (thunder_source.rs:25-27, 30)
+
+X's safety flags
+UNKNOWN   X keeps these on their side. If one is set, none of the files
+          below get written. It only shows up here if you already got a
+          warning.
+          (phoenixRankAllCandidateProcessor.strato:438-440, 447;
+           eventProcessing.strato:246-265)
+
+WHAT FILES IT, AND FOR HOW LONG
+
+                                              written    searchable
+                                              and kept   on For You
+WRITTEN   Publish-time file (post_creation)   24 h      not published
+            (strato:266-273, 469; config/mod.rs:142; retrieval_dataset.py:229-285)
+ON 1 LIKE  One-like file (1fav)                24 + 48 h up to 48 h
+            (strato:78-92; config/mod.rs:143-144; retrieval_dataset.py:231-235; age_filter.rs:16-20)
+ON 32 LIKES  Thirty-two-like file (32fav)        24 h      not published
+            (strato:62-76; config/mod.rs:145; retrieval_dataset.py:229-285)
+n/a       No video, so the video files do not apply: video, nsfw_video, evergreen video.
+
+Judgment: none flagged.
+
+No edit: this draft is not leaving reach on the table. None of what would have cost you reach is present: a reply, repost, or community post (would keep it out of the wider-distribution file), an NSFW mark (same), a clip already in the draft at or under 10 seconds or sitting next to a photo (would keep it off the video files), bait that asks people to like or tag, or a restriction notice from X.
+
+This reads the code they published, not the live knobs they can turn on you tomorrow.

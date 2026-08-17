@@ -1,0 +1,46 @@
+{
+  "job": 4,
+  "now": "2026-08-17T18:00:00.000Z",
+  "handle": "smallaccount",
+  "followers": 600,
+  "ingest": "apify",
+  "pulls": ["profile", "with_replies"],
+  "expectedBlocks": ["STILL OPEN", "DO BETTER", "HOW THIS WORKS"],
+  "forbiddenBlocks": [],
+  "expectedPhrases": [
+    "0 LIKES",
+    "Still inside 48 hours",
+    "The first like is the published ticket",
+    "Paste that draft and Rewrite will check it"
+  ],
+  "forbiddenPhrases": ["Rewrite:", "stranger shelf"],
+  "posts": [
+    {
+      "id": "401",
+      "url": "https://x.com/smallaccount/status/401",
+      "text": "A one-line audit of your last post beats another thread about the algorithm.",
+      "createdAt": "2026-08-17T10:00:00.000Z",
+      "isReply": false,
+      "likeCount": 0,
+      "shape": "no-object"
+    },
+    {
+      "id": "402",
+      "url": "https://x.com/smallaccount/status/402",
+      "text": "Steal this kit checklist: one claim, one artifact, one ask. That is the whole post.",
+      "createdAt": "2026-08-15T06:00:00.000Z",
+      "isReply": false,
+      "likeCount": 9,
+      "shape": "named-object"
+    },
+    {
+      "id": "403",
+      "url": "https://x.com/smallaccount/status/403",
+      "text": "Shipping in public is not a strategy if nobody can send the artifact.",
+      "createdAt": "2026-08-14T10:00:00.000Z",
+      "isReply": false,
+      "likeCount": 2,
+      "shape": "no-object"
+    }
+  ]
+}

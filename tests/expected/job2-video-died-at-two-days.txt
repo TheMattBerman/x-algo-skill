@@ -1,0 +1,6 @@
+The feed's hard 48-hour age gate, or a two-day video slice.
+The long video windows are storage, not feed reach.
+(age_filter.rs:16-20; config.rs:36; retrieval_dataset.py:236-240)
+Whether any one person sees this comes down to what they have been liking and replying to lately, which is on their side and nobody can read it from here.
+Cannot tell from here which corpora the For You cluster requests.
+This reads the code they published, not the live knobs they can turn on you tomorrow.

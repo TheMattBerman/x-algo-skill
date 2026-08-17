@@ -1,0 +1,97 @@
+{
+  "job": 4,
+  "now": "2026-08-17T18:00:00.000Z",
+  "handle": "demooperator",
+  "followers": 3100,
+  "ingest": "paste",
+  "expectedBlocks": ["STILL OPEN", "DO BETTER", "HOW THIS WORKS"],
+  "expectedPhrases": [
+    "Still inside 48 hours",
+    "This reads the code they published",
+    "Paste that draft and Rewrite will check it"
+  ],
+  "forbiddenPhrases": ["Rewrite:", "Let me check"],
+  "posts": [
+    {
+      "id": "501",
+      "url": "https://x.com/demooperator/status/501",
+      "text": "The first like is not a vibe. It is the published ticket.",
+      "createdAt": "2026-08-17T16:00:00.000Z",
+      "isReply": false,
+      "likeCount": 0
+    },
+    {
+      "id": "502",
+      "url": "https://x.com/demooperator/status/502",
+      "text": "Nice catch on the timeout. I would ship that as an original.",
+      "createdAt": "2026-08-17T15:30:00.000Z",
+      "isReply": true,
+      "likeCount": 3
+    },
+    {
+      "id": "503",
+      "url": "https://x.com/demooperator/status/503",
+      "text": "Agree. The paste fallback is the product when the token is missing.",
+      "createdAt": "2026-08-17T14:00:00.000Z",
+      "isReply": true,
+      "likeCount": 2
+    },
+    {
+      "id": "504",
+      "url": "https://x.com/demooperator/status/504",
+      "text": "A quote with a comment can grow. A repost cannot.",
+      "createdAt": "2026-08-16T12:00:00.000Z",
+      "isReply": false,
+      "likeCount": 6
+    },
+    {
+      "id": "505",
+      "url": "https://x.com/demooperator/status/505",
+      "text": "That screenshot is doing the work. Keep the caption shorter.",
+      "createdAt": "2026-08-16T09:00:00.000Z",
+      "isReply": true,
+      "likeCount": 1
+    },
+    {
+      "id": "506",
+      "url": "https://x.com/demooperator/status/506",
+      "text": "Stop hiding the link in the first reply. It still cannot grow from there.",
+      "createdAt": "2026-08-15T20:00:00.000Z",
+      "isReply": false,
+      "likeCount": 11,
+      "shape": "named-object"
+    },
+    {
+      "id": "507",
+      "url": "https://x.com/demooperator/status/507",
+      "text": "True on the 48-hour cut. Video does not get a longer feed window.",
+      "createdAt": "2026-08-15T11:00:00.000Z",
+      "isReply": true,
+      "likeCount": 4
+    },
+    {
+      "id": "508",
+      "url": "https://x.com/demooperator/status/508",
+      "text": "I would not pin that URL. Pinning a bad link is a 7-day account problem.",
+      "createdAt": "2026-08-14T18:00:00.000Z",
+      "isReply": true,
+      "likeCount": 2
+    },
+    {
+      "id": "509",
+      "url": "https://x.com/demooperator/status/509",
+      "text": "Draft in public if you want, but the original has to stand alone.",
+      "createdAt": "2026-08-14T09:00:00.000Z",
+      "isReply": false,
+      "likeCount": 1
+    },
+    {
+      "id": "510",
+      "url": "https://x.com/demooperator/status/510",
+      "text": "Same. The in-app browser is the middle step, not the product.",
+      "createdAt": "2026-08-13T21:00:00.000Z",
+      "isReply": true,
+      "likeCount": 1
+    }
+  ]
+}

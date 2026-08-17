@@ -1,0 +1,19 @@
+{
+  "product": "rewrite",
+  "job": 1,
+  "text": "just shipped a tiny CLI that turns any github repo into a single markdown file for pasting into an LLM. 200 lines of python, no deps.",
+  "postType": "original",
+  "followers": 5000,
+  "expectedPhrases": [
+    "REWRITE",
+    "NO CHANGE",
+    "SEND",
+    "just shipped a tiny CLI that turns any github repo into a single markdown file for pasting into an LLM. 200 lines of python, no deps.",
+    "FOLLOW",
+    "Follow if you want the next one."
+  ],
+  "forbiddenPhrases": [
+    "WHERE IT CAN SHOW UP",
+    "like if you agree"
+  ]
+}

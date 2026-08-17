@@ -1,0 +1,13 @@
+{
+  "text": "The clip plus a still from the same scene.",
+  "postType": "original",
+  "followers": 5000,
+  "media": "video",
+  "videoDurationMs": 30000,
+  "mixedMedia": true,
+  "labels": [],
+  "reply": false,
+  "repost": false,
+  "urlVerdict": null,
+  "expectedJudgment": "none flagged."
+}

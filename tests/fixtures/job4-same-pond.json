@@ -1,0 +1,47 @@
+{
+  "job": 4,
+  "now": "2026-08-17T18:00:00.000Z",
+  "handle": "demooperator",
+  "followers": 5400,
+  "ingest": "apify",
+  "pulls": ["profile", "with_replies"],
+  "expectedBlocks": ["FILED", "DO BETTER", "HOW THIS WORKS"],
+  "forbiddenBlocks": [],
+  "expectedPhrases": [
+    "PICTURE",
+    "Paste that draft and Rewrite will check it"
+  ],
+  "forbiddenPhrases": ["Rewrite:"],
+  "posts": [
+    {
+      "id": "301",
+      "url": "https://x.com/demooperator/status/301",
+      "text": "3 things I learned shipping kits this week\n\n1. Write the post first.\n2. Then pick the visual.\n3. Then ship.\n\nSteal this.",
+      "createdAt": "2026-08-16T22:00:00.000Z",
+      "isReply": false,
+      "likeCount": 12,
+      "shape": "named-object",
+      "media": null
+    },
+    {
+      "id": "302",
+      "url": "https://x.com/demooperator/status/302",
+      "text": "3 things I learned shipping newsletters this week\n\n1. Open with the receipt.\n2. Then name the mechanism.\n3. Then stop.\n\nSteal this.",
+      "createdAt": "2026-08-14T20:00:00.000Z",
+      "isReply": false,
+      "likeCount": 4,
+      "shape": "named-object",
+      "media": null
+    },
+    {
+      "id": "303",
+      "url": "https://x.com/demooperator/status/303",
+      "text": "3 things I learned shipping landing pages this week\n\n1. Cut the hero claim.\n2. Then show the artifact.\n3. Then ask once.\n\nSteal this.",
+      "createdAt": "2026-08-13T21:00:00.000Z",
+      "isReply": false,
+      "likeCount": 3,
+      "shape": "named-object",
+      "media": null
+    }
+  ]
+}
